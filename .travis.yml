@@ -1,0 +1,22 @@
+# For more information about the configurations used
+# in this file, please see the Travis CI documentation:
+# http://docs.travis-ci.com
+
+after_success:
+  - ./scripts/travis/auto_update_dist.sh
+
+env:
+  global:
+    - secure: "uZ0R71TG9AR+kbfM9rwa8PPNr3f9E0C4OuA0s6g0Gq15bBcpVxPvus0/eJdW+O2NSzZE1GbzS//hBiP+chK/8X4DyNIRutlGk5RYdnTTFEaZo9jp0BvlvprUYlGgpprR/531zQ9ahkc0STwVvzurGzlcF4NNMiISAJJ1IdQZABc="
+
+git:
+  depth: 10
+
+language: node_js
+
+node_js:
+  - "0.12"
+  - "4"
+  - "5"
+
+sudo: false
