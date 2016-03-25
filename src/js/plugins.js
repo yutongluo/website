@@ -4904,13 +4904,15 @@
         if (settings.height) {
             self.height(settings.height);
         }
-        var agent = navigator.userAgent.toLowerCase();
-        if (!agent.match(/(webkit)[ \/]([\w.]+)/) &&
-            self[0].tagName.toLowerCase() == 'body') {
-            scroll_object = $('html');
-        } else {
-            scroll_object = self;
-        }
+        // var agent = navigator.userAgent.toLowerCase();
+        //if (!agent.match(/(webkit)[ \/]([\w.]+)/) &&
+        //    self[0].tagName.toLowerCase() == 'body') {
+        //    scroll_object = $('html');
+        //} else {
+        //    scroll_object = $('html');
+
+
+        scroll_object = $('html');
         // register ajaxSend for cancel requests on CTRL+D
         $(document).bind('ajaxSend.terminal', function(e, xhr, opt) {
             requests.push(xhr);
