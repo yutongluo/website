@@ -19,6 +19,7 @@ import pkg from './package.json';
 
 const dirs = pkg['h5bp-configs'].directories;
 
+
 // ---------------------------------------------------------------------
 // | Helper tasks                                                      |
 // ---------------------------------------------------------------------
@@ -62,6 +63,15 @@ gulp.task('archive:zip', (done) => {
 
 });
 
+gulp.task('compress', function() {
+    return gulp.src(`${dirs.src}/js/*`)
+        .pipe(plugins().concat('concat.js'))
+        .pipe(gulp.dest('dist/js'))
+        .pipe(plugins().rename('main.js'))
+        .pipe(plugins().uglify())
+        .pipe(gulp.dest('dist/js'));
+});
+
 gulp.task('clean', (done) => {
     del([
         dirs.archive,
@@ -72,20 +82,14 @@ gulp.task('clean', (done) => {
 });
 
 gulp.task('copy', [
-    //'copy:.htaccess',
     'copy:index.html',
     'copy:jquery',
     'copy:license',
     'copy:main.css',
     'copy:misc',
-    'copy:normalize'
+    'copy:normalize',
+    'compress'
 ]);
-
-gulp.task('copy:.htaccess', () =>
-    gulp.src('node_modules/apache-server-configs/dist/.htaccess')
-        .pipe(plugins().replace(/# ErrorDocument/g, 'ErrorDocument'))
-        .pipe(gulp.dest(dirs.dist))
-);
 
 gulp.task('copy:index.html', () =>
     gulp.src(`${dirs.src}/index.html`)
@@ -125,6 +129,7 @@ gulp.task('copy:misc', () =>
 
         // Exclude the following files
         // (other tasks will handle the copying of these files)
+        `!${dirs.src}/js/*`,
         `!${dirs.src}/css/main.css`,
         `!${dirs.src}/index.html`
 

@@ -1,3 +1,477 @@
+/* globals colWidth, formatText, splitLines */
+
+'use strict';
+
+// EXPERIENCE CLASS
+function Experience(name, position, location, date, description){
+  this.name = name;
+  this.position = position;
+  this.location = location;
+  this.date = date;
+  this.description = description;
+}
+
+Experience.prototype.getString = function () {
+  var str = '';
+  str += formatText('company', this.name);
+  str += Array(colWidth - this.name.length - this.location.length).join(' ');
+  str += formatText('violet', this.location) + '\n';
+
+  str += formatText('yellow', this.position);
+  str += Array(colWidth - this.position.length - this.date.length).join(' ');
+  str += formatText('violet', this.date) + '\n';
+
+  str += splitLines(this.description);
+  str += '\n';
+  return str;
+};
+
+/* globals formatText */
+/* exported File */
+
+'use strict';
+
+var monthNames = [
+  'Jan', 'Feb', 'Mar',
+  'Apr', 'May', 'Jun', 'Jul',
+  'Aug', 'Sep', 'Oct',
+  'Nov', 'Dec'
+];
+
+function File(name, permissions, content, lastModified, user, group, directory) {
+  this.name = name;
+  this.permissions = permissions;
+  this.content = content;
+  this.size = content.length;
+  this.lastModified = lastModified;
+  this.user = user;
+  this.group = group;
+  this.directory = directory;
+}
+
+var dateString = function(date) {
+  return monthNames[date.getMonth()] + '  ' + date.getDay() + '  ' + date.getHours() + ':' + date.getMinutes();
+};
+
+File.prototype.getString = function (detailed) {
+  if (detailed) {
+    return this.name + ' ';
+  } else {
+    return this.permission + '  ' + this.user + '  ' + this.group + '  ' + this.size + '  '+
+    dateString(this.lastModified) + '  ' + this.directory ? formatText('blue', this.name) : this.name;
+  }
+};
+
+/* globals formatText:false */
+/* exports Filesystem */
+
+'use strict';
+// Determines of a directory has a file.
+// Return that file if it does, else return null;
+function hasFile(directory, fileName) {
+  // directory has to be, well, a directory
+  if (!directory.directory) {
+    return null;
+  }
+  for (var i in directory.content) {
+    if (directory.content[i].name === fileName) {
+      return directory.content[i];
+    }
+  }
+}
+
+function arrLast(arr) {
+  return arr[arr.length - 1];
+}
+
+function FileSystem() {
+  // function File(name, permissions, content, lastModified, user, group, directory)
+  var guestHome = new File('guest', 'drwxr-xr-x.', [], new Date(), 'guest', 'guest', true);
+  var adminHome = new File('admin', 'drwxr-xr-x.', [], new Date('Feb 16 2016'), 'admin', 'admin', true);
+  var homeContent = [guestHome, adminHome];
+  var home = new File('home', 'drwxr-xr-x.', homeContent, new Date('Feb 3 2016'), 'root', 'root', true);
+  this.root = new File('/', 'drwxr-xr-x.', [home], new Date('July 3 2013'), 'root', '502', true);
+  this.pwdStack = [];
+  this.pwdStack.push(this.root);
+  this.pwdStack.push(home);
+  this.pwdStack.push(guestHome);
+
+  // remember previous directory for cd -
+  this.prevStack = this.pwdStack.slice();
+}
+
+function followDirectory(current, paths) {
+  var tmpStack = [], temp;
+  for (var i = 0; i < paths.length(); i++) {
+    if (paths[i] === '') {
+      continue;
+    }
+    temp = hasFile(current, paths[i]);
+    if (temp === null || !temp.directory) {
+      // no such directory
+      return false;
+    } else {
+      tmpStack.push(temp);
+      current = temp;
+    }
+  }
+  return tmpStack;
+}
+
+// get a file
+function followFile(current, paths) {
+  var temp;
+  for (var i = 0; i < paths.length(); i++) {
+    if (paths[i] === '') {
+      continue;
+    }
+    temp = hasFile(current, paths[i]);
+    if (temp === null) {
+      // no such file or directory
+      return false;
+    } else {
+      current = temp;
+    }
+  }
+  return current;
+}
+
+
+FileSystem.prototype.cd = function (path) {
+  if (path === '.') {
+    // cd . does nothing
+    return true;
+  }
+  else if (path === '..') {
+    // parent directory
+    if (this.pwdStack.length > 1) {
+      this.prevStack = this.pwdStack.slice();
+      this.pwdStack.pop();
+    }
+    return true;
+  } else if (path === '-' ) {
+    // previous directory
+    var tmp = this.pwdStack;
+    this.pwdStack = this.prevStack;
+    this.prevStack = tmp;
+    return true;
+  } else {
+    if (typeof path !== 'string') {
+      // weird bug where a string ending with '/' is considered an object
+      path = path.toString();
+    }
+    var paths = path.split('/');
+    var current, targetPath;
+    if (paths[0] === '') {
+      // ABSOLUTE path: our string started with a '/'
+      current = this.root;
+    } else {
+      // RELATIVE
+      current = arrLast(this.pwdStack);
+    }
+    targetPath = followDirectory(current, paths);
+    if (!targetPath) {
+      return false;
+    }
+    this.prevStack = this.pwdStack.slice();
+    this.pwdStack = [this.root].concat(targetPath);
+    return true;
+  }
+};
+
+FileSystem.prototype.pwd = function() {
+  var path = '';
+  for ( var i = 0; i < this.pwdStack.length; i++) {
+    path += this.pwdStack[i].name;
+    if (i !== this.pwdStack.length - 1 && i !== 0) {
+      // need to add a slash except for the root folder and the last folder
+      path += '/';
+    }
+  }
+  return path;
+};
+
+FileSystem.prototype.ls = function(path, flags) {
+  var i, targetFile, ret = '';
+  if (!path) {
+    targetFile = arrLast(this.pwdStack);
+  } else {
+    if (typeof path !== 'string') {
+      // weird bug where a string ending with '/' is considered an object
+      path = path.toString();
+    }
+    var paths = path.split('/');
+    var current;
+    if (paths[0] === '') {
+      // ABSOLUTE path: our string started with a '/'
+      current = this.root;
+    } else {
+      // RELATIVE
+      current = arrLast(this.pwdStack);
+    }
+    targetFile = followFile(current, paths);
+  }
+
+  if (!targetFile) {
+    return false;
+  } else {
+    if (targetFile.directory) {
+      // is a directory
+      if (!flags) {
+        // no flags
+        for (i = 0; i < targetFile.content.length; i++) {
+          if (targetFile.content.directory) {
+            ret += formatText('cyan', targetFile.content[i].name);
+          } else {
+            ret += targetFile.content[i].name;
+          }
+          ret += ' ';
+        }
+      } else {
+        if (flags.indexOf('l') !== -1) {
+          // detailed mode
+          // padding for formatting.
+          var sizePadding = 0, userPadding = 0, groupPadding = 0;
+          var file;
+
+          for (i = 0; i < targetFile.content.length; i++) {
+            file = targetFile.content[i];
+            if (file.size.toString().length > sizePadding) {
+              sizePadding = file.size.toString().length;
+            }
+            if (file.user.length > userPadding) {
+              userPadding = file.user.length;
+            }
+            if (file.group.length > groupPadding) {
+              groupPadding = file.group.length;
+            }
+          }
+
+          for (i = 0; i < targetFile.content.length; i++) {
+            file = targetFile.content[i];
+            ret += file.permissions;
+            ret += '  ';
+            ret += file.user + Array(userPadding - file.user.length + 1).join(' ');
+            ret += '  ';
+            ret += file.group + Array(groupPadding - file.group.length + 1).join(' ');
+            ret += '  ';
+            ret += Array(sizePadding - file.size.toString().length).join(' ') + file.size;
+            ret += '  ';
+            ret += file.lastModified.toDateString();
+            ret += '  ';
+            if (file.directory) {
+              ret += formatText('cyan', targetFile.content[i].name);
+            } else {
+              ret += targetFile.content[i].name;
+            }
+            ret += '\n';
+          }
+        }
+      }
+    }
+    return ret;
+  }
+};
+
+/* globals $, Experience, formatText, splitLines, document, FileSystem */
+'use strict';
+
+// HELPER FUNCTIONS AND DEFINITIONS
+var getAge = function() {
+  var today = new Date();
+  var bday = new Date();
+  bday.setYear(1993);
+  bday.setMonth(4);
+  var difference = today - bday.getTime();
+  var ageDate = new Date(difference);
+  return Math.abs(ageDate.getUTCFullYear() - 1970);
+};
+
+var fs = new FileSystem();
+
+// EXPERIENCES
+var experiences = [
+  new Experience(
+    'Groupon',
+    'Computational Marketing Intern',
+    'Seattle, WA',
+    'May 2015–Aug 2015',
+    'Evaluated Spark and SparkSQL as replacement for existing Hadoop Implementation. Saw 5-10x performance increase,' +
+    ' proposed migration plan and identified key blockers and potential solutions. ' +
+    'Implemented metrics, API, and testing framework for low-latency microservice with Play API and Cassandra. ' +
+    'The full-times were busy with the existing system, so I got to do all the glorious coding!'
+  ),
+  new Experience(
+    'Top Hat',
+    'Full-stack Developer Intern',
+    'Toronto, ON',
+    'Sept 2014–Dec 2014',
+    'Fixed and wrote unit tests for ~40 bugs including XSS vulnerabilities, 2D distance calculations, and Excel ' +
+    'export errors, totaling a weighted value of $192,840. Chasing bugs across stacks were actually kind of fun. ' +
+    ' Led web accessibility project with a team of 2 making ' +
+    'web interfaces ADA compliant. Feedback from stakeholder: \"There\'s a lot of work to be done, but overall ' +
+    'good work!\"'
+  ),
+  new Experience(
+    'IBM',
+    'Compiler Optimization Intern',
+    'Markham, ON',
+    'Jan 2014–Apr 2014',
+    'Created Node.js application that aggregated node-load output and plotted the data using d3.js. ' +
+    'Refactored C++ compiler codebase to support JIT compilation for different languages. Humbling experience to ' +
+    'appreciate how much work goes into making and optimizing a compiler.'
+  ),
+  new Experience(
+    'Maxxian',
+    'Software Developer Intern',
+    'Markham, ON',
+    'May 2013–Aug 2013',
+    'Developed MVC prototype replacement of current product with Django. Improved page load time by over 60 times ' +
+    'implemented RESTful API which returns data from Postgres in JSON format. Significantly improved excel report ' +
+    'generation times by caching and reusing data. First time working at a start up. Learned all my linux basics here,' +
+    ' from setting up physical servers, to managing VMs with hypervisors, all the way to writing, installing and testing ' +
+    'the software. '
+  ),
+  new Experience(
+    'BMO InvestorLine',
+    'E-Business Specialist',
+    'Toronto, ON',
+    'Sept 2012–Dec 2012',
+    'Initiated automation effort to significantly improve efficiency of generating HTML tables from Excel documents ' +
+    'using VBA. Had a friendly competition with a fellow intern on who will finish it first. He gave up in the end. ' +
+    'Developed dynamic PDF forms using JavaScript to enforce correct data entry while providing easier client experience.'
+  )
+];
+
+// BASH RESUME OBJECT
+var BashResume = {
+  version: '0.1',
+  help: function() {
+    this.echo(formatText('bold', 'Command Line Resum&eacute; version ' + BashResume.version +
+      '-release (i686-pc-linux-gnu)'));
+    this.echo('Available commands:');
+    this.echo('  ' + formatText('bold', 'whoami') + '\t\tget to know Yutong');
+    this.echo('  ' + formatText('bold', 'experience') + '\twhat has yutong done?');
+    this.echo('  ' + formatText('bold', 'projects') + '\t  Yutong\'s proudest moments');
+    this.echo('  ' + formatText('bold', 'help  ') + '\t\tthis help screen');
+
+    // about should always be last
+    this.echo('  ' + formatText('bold', 'about') + '\t\t about this site\n');
+  },
+  whoami: function() {
+    this.echo(formatText('heading', 'Basic info:'));
+    this.echo(formatText('bold', 'Subject Name: ') + 'Yutong Luo');
+    this.echo(formatText('bold', 'Subject Role: ') + 'Software Developer');
+    this.echo(formatText('bold', 'Subject Age: ') + getAge());
+    this.echo(formatText('bold', 'Subject Education: ') + 'University of Waterloo (Graduate in 2016)');
+    this.echo(formatText('bold', 'Known Locations: ') + 'Seattle, Toronto, Markham');
+    this.echo('\n');
+    this.echo(formatText('heading', 'Bio:'));
+    this.echo(splitLines(
+      'Little is known about our bespectacled subject, besides his ability to code. ' +
+      'Through rigorous training in the famed co-op program at University of Waterloo, ' +
+      'he has interned at companies big and small. Through this process, he transformed ' +
+      'from a novice who gets code to work to a man with an obsession for writing the perfect' +
+      ' code. Now on a quest for an unobtainable goal, he is determined to be the best.'));
+    this.echo('\n');
+    this.echo(formatText('heading', 'Skills:'));
+    this.echo(formatText('skill', 'Big Data'));
+    this.echo('Spark, SparkSQL, Hadoop, Hive\n');
+    this.echo(formatText('skill', 'Web Development'));
+    this.echo('Django, Play, HTML5, CSS, Javascript, Backbone.js, RESTful API, Node.js\n');
+    this.echo(formatText('skill', 'Mobile Development'));
+    this.echo('Android, Parse, Swift\n');
+    this.echo(formatText('skill', 'Languages'));
+    this.echo('C++, Python, C, Java 8, JavaScript, jQuery, HTML, CSS, Bash, Swift\n');
+  },
+  experience: function() {
+    for (var i = 0; i < experiences.length; i++) {
+      this.echo(experiences[i].getString());
+    }
+  },
+  about: function() {
+    this.echo('This site is made with jquery.terminal.');
+    this.echo('Copyright &copy; Yutong Luo 2016\n');
+  },
+  projects: function() {
+    this.echo(formatText('heading', 'Hackathons'));
+    this.echo(formatText('company', 'Hack the North') + ': ' + formatText('violet', 'Bloomberg API Prize'));
+    this.echo(formatText('yellow', 'Stockslate: A webapp which ranks stocks based on investor profiles\n'));
+    this.echo(splitLines(
+      'Implemented back-end to pull data from Bloomberg API into MongoDB in realtime with Node.js\n'));
+    this.echo(formatText('company', 'IBM FutureBlue Hackathon') + ': ' + formatText('violet', 'First Place'));
+    this.echo(formatText('yellow', 'A web app which hosts car pooling for IBM employees\n'));
+    this.echo(splitLines(
+      'Designed and implemented user interactions and dynamic HTML generation with JavaScript and jQuery\n'
+      ));
+    this.echo(formatText('company', 'Groupon Geekon') + ': ' + formatText('violet', 'No prize but had fun'));
+    this.echo(formatText('yellow', 'A large scale system within Groupon which aggregates multiple services together'));
+    this.echo(splitLines('Implemented back-end API using Dropwizard in Java\n'));
+
+    this.echo(formatText('heading', 'Projects'));
+    this.echo(formatText('company', 'Toronto 311 Map'));
+    this.echo('Using google map API, plot out all the potholes in Toronto\n');
+    this.echo(formatText('company', 'Timecatcher'));
+    this.echo('A smart calendar Android app which schedules a user\'s day using AI algorithms\n');
+  },
+  pwd: function() {
+    this.echo(fs.pwd());
+  },
+  cd: function(path) {
+    if (!path) {
+      fs.cd('/home/guest');
+    } else if (!fs.cd(path)) {
+      this.error('No such directory!');
+    }
+  },
+  ls: function() {
+    var flags = '';
+    var path = '';
+    for (var i = 0; i < arguments.length; i++) {
+      if (arguments[i][0] === '-') {
+        flags += arguments[i].substring(1);
+      } else {
+        path = arguments[i];
+      }
+    }
+    var lsResult = fs.ls(path, flags);
+    if (lsResult === false) {
+      this.error('No such file or directory!');
+    } else {
+      this.echo(lsResult);
+    }
+  }
+};
+
+// READY SET LAUNCH
+$(document).ready(function() {
+  $('#term').terminal(BashResume, {
+    greetings: '[[g;#fdf6e3;]__     __    _                      _\n' +
+    '\\ \\   / /   | |                    | |\n' +
+    ' \\ \\_/ /   _| |_ ___  _ __   __ _  | |    _   _  ___\n' +
+    '  \\   / | | | __/ _ \\| \'_ \\ / _` | | |   | | | |/ _ \\\n' +
+    '   | || |_| | || (_) | | | | (_| | | |___| |_| | (_) |\n' +
+    '   |_| \\__,_|\\__\\___/|_| |_|\\__, | |______\\__,_|\\___/\n' +
+    '                             __/ |                    \n' +
+    '                            |___/ \n\n]' +
+    'Welcome to Command Line Resum&eacute; v' + BashResume.version + '. Type ' +
+    formatText('green', 'help') + ' to start\n',
+    prompt: function(p){
+      var path = fs.pwd();
+      if (fs.pwd() === '/home/guest') {
+        path = '~';
+      }
+      p('guest@yutongluo:' + path + '$ ');
+    },
+    onBlur: function() {
+      // prevent losing focus
+      return false;
+    },
+    checkArity: false,
+    completion: true,
+    history: true});
+});
+
 // Avoid `console` errors in browsers that lack a console.
 (function() {
     var method;
@@ -5181,3 +5655,58 @@
         return self;
     }; //terminal plugin
 })(jQuery);
+
+/* exported formatText, splitLines */
+'use strict';
+
+// exported option does not work for some reason
+
+// Styles with solarized color scheme <3
+var styles = {
+  'bold': '[[b;#fdf6e3;]',
+  'glow': '[[g;#fdf6e3;]',
+  'green': '[[;#859900;]',
+  'yellow': '[[;#b58900;]',
+  'orange': '[[;#cb4b16;]',
+  'magenta': '[[;#d33682;]',
+  'violet': '[[;#6c71c4;]',
+  'blue': '[[;#268bd2;]',
+  'cyan': '[[;#2aa198;]',
+  'heading': '[[bug;#2aa198;]',
+  'company': '[[bg;#268bd2;]',
+  'skill': '[[bg;#859900;]'
+};
+
+var colWidth = 80;
+
+var formatText = function(format, text) {
+  return styles[format] + text + ']';
+};
+
+var splitLines = function(str) {
+  var words = str.split(' ');
+  var col = 0;
+  var newColSize = 0;
+  var line = '';
+  var ret = '';
+
+  for (var i = 0; i < words.length; ) {
+    newColSize = col + words[i].length + 1;
+    if (newColSize > colWidth && line !== '') {
+      // new word is not going to fit
+      line += '\n';
+      col = 0;
+      ret += line;
+      line = '';
+    } else {
+      col = newColSize;
+      line += words[i++] + ' ';
+    }
+  }
+  // something's left
+  if (line !== '') {
+    ret += line;
+  }
+
+  return ret;
+};
