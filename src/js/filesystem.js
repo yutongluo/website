@@ -38,26 +38,25 @@ function FileSystem() {
 
 function followDirectory(current, paths) {
   var tmpStack = [], temp;
-  for (var i = 0; i < paths.length(); i++) {
+  for (var i = 0; i < paths.length; i++) {
     if (paths[i] === '') {
       continue;
     }
     temp = hasFile(current, paths[i]);
-    if (temp === null || !temp.directory) {
-      // no such directory
+    if (temp === null || temp === undefined || !temp.directory) {
       return false;
     } else {
       tmpStack.push(temp);
       current = temp;
     }
   }
-  return tmpStack;
+    return tmpStack;
 }
 
 // get a file
 function followFile(current, paths) {
   var temp;
-  for (var i = 0; i < paths.length(); i++) {
+  for (var i = 0; i < paths.length; i++) {
     if (paths[i] === '') {
       continue;
     }
@@ -110,7 +109,11 @@ FileSystem.prototype.cd = function (path) {
       return false;
     }
     this.prevStack = this.pwdStack.slice();
-    this.pwdStack = [this.root].concat(targetPath);
+    if (paths[0] === '') {
+      this.pwdStack = [this.root].concat(targetPath);
+    } else {
+      this.pwdStack = this.prevStack.concat(targetPath);
+    }
     return true;
   }
 };
