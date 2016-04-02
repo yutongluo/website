@@ -81,7 +81,12 @@ var BashResume = {
     this.echo('  ' + formatText('bold', 'help  ') + '\t\tthis help screen');
 
     // about should always be last
-    this.echo('  ' + formatText('bold', 'about') + '\t\t about this site\n');
+    this.echo('  ' + formatText('bold', 'about') + '\t\t about this site\n\n');
+
+
+    this.echo(
+      formatText('magenta', 'Don\'t like the command line? Go to ')  + 'https://yutongluo.com\n');
+
   },
   whoami: function() {
     this.echo(formatText('heading', 'Basic info:'));
