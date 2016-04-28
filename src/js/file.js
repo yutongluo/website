@@ -22,14 +22,17 @@ function File(name, permissions, content, lastModified, user, group, directory) 
 }
 
 var dateString = function(date) {
-  return monthNames[date.getMonth()] + '  ' + date.getDay() + '  ' + date.getHours() + ':' + date.getMinutes();
+  return monthNames[date.getMonth()] + '  ' +
+    date.getDay() + '  ' +
+    date.getHours() + ':' +
+    date.getMinutes();
 };
 
 File.prototype.getString = function (detailed) {
   if (detailed) {
     return this.name + ' ';
   } else {
-    return this.permission + '  ' + this.user + '  ' + this.group + '  ' + this.size + '  '+
+    return this.permissions + '  ' + this.user + '  ' + this.group + '  ' + this.size + '  '+
     dateString(this.lastModified) + '  ' + this.directory ? formatText('blue', this.name) : this.name;
   }
 };

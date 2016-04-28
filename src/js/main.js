@@ -32,7 +32,7 @@ var experiences = [
     'Toronto, ON',
     'Sept 2014–Dec 2014',
     'Fixed and wrote unit tests for ~40 bugs including XSS vulnerabilities, 2D distance calculations, and Excel ' +
-    'export errors, totaling a weighted value of $192,840. Chasing bugs across stacks were actually kind of fun. ' +
+    'export errors, totaling a weighted value of $192,840. Chasing bugs across stacks was actually kind of fun. ' +
     ' Led web accessibility project with a team of 2 making ' +
     'web interfaces ADA compliant. Feedback from stakeholder: \"There\'s a lot of work to be done, but overall ' +
     'good work!\"'
@@ -85,7 +85,7 @@ var BashResume = {
 
 
     this.echo(
-      formatText('magenta', 'Don\'t like the command line? Go to ')  + 'https://yutongluo.com\n');
+      formatText('magenta', 'Don\'t like the command line? Go to ')  + 'https://gui.yutongluo.com\n');
 
   },
   whoami: function() {
