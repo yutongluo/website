@@ -28,6 +28,8 @@ function FileSystem() {
   var home = new File('home', 'drwxr-xr-x.', homeContent, new Date('Feb 3 2016'), 'root', 'root', true);
   this.root = new File('/', 'drwxr-xr-x.', [home], new Date('July 3 2013'), 'root', '502', true);
   this.pwdStack = [];
+
+  // default $HOME is just /home/guest
   this.pwdStack.push(this.root);
   this.pwdStack.push(home);
   this.pwdStack.push(guestHome);
@@ -50,7 +52,7 @@ function followDirectory(current, paths) {
       current = temp;
     }
   }
-    return tmpStack;
+  return tmpStack;
 }
 
 // get a file
@@ -76,8 +78,7 @@ FileSystem.prototype.cd = function (path) {
   if (path === '.') {
     // cd . does nothing
     return true;
-  }
-  else if (path === '..') {
+  } else if (path === '..') {
     // parent directory
     if (this.pwdStack.length > 1) {
       this.prevStack = this.pwdStack.slice();
@@ -96,9 +97,15 @@ FileSystem.prototype.cd = function (path) {
       path = path.toString();
     }
     var paths = path.split('/');
+
+    // current is the current folder we're cding from
+    // targetPath is the path, if exists, to the destination from the current folder
     var current, targetPath;
-    if (paths[0] === '') {
-      // ABSOLUTE path: our string started with a '/'
+
+    // Absolute path if path started with '/'
+    var absolutePath = paths[0] === '';
+
+    if (absolutePath) {
       current = this.root;
     } else {
       // RELATIVE
@@ -109,7 +116,7 @@ FileSystem.prototype.cd = function (path) {
       return false;
     }
     this.prevStack = this.pwdStack.slice();
-    if (paths[0] === '') {
+    if (absolutePath) {
       this.pwdStack = [this.root].concat(targetPath);
     } else {
       this.pwdStack = this.prevStack.concat(targetPath);
