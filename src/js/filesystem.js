@@ -69,15 +69,31 @@ function printDetailedFile(file, sizePadding, userPadding, groupPadding) {
 }
 
 /**
- * HOF function which follows a path.
- * @param {File[]} stack current pwd stack
- * @param {String[]} path split string path to target
- * @param isValid Function(File) => Boolean
+ * Follows a path given current pwd and path.
+ * @param {File[]} stack current stack from which the path extends
+ * @param {String} path path to target
+ * @param {function} [isValid] (file) -> boolean
  * @returns {*} false if the target Path does not exist, or the target file path points to returns false for isValid
  *              A pwdstack if the target Path exists, and isValid is true for the target file.
  */
 function followPath(stack, path, isValid) {
   var temp;
+
+  if (typeof path !== 'string') {
+    // fixes weird bug where a string ending with '/' is considered an object
+    path = path.toString();
+  }
+
+  path = path.split('/');
+
+  // Absolute path if path started with '/'
+  var absolutePath = path[0] === '';
+  if (absolutePath) {
+    // stack[0] should always be the root directory.
+    // if absolute path, stack should start at the root directory.
+    stack = [stack[0]];
+  }
+
   for (var i = 0; i < path.length; i++) {
     if (path[i] === '' || path[i] === '.') {
       continue;
@@ -106,16 +122,6 @@ function followPath(stack, path, isValid) {
   return stack;
 }
 
-function followDirectory(stack, path) {
-  return followPath(stack, path, function (a) {
-    return a.directory;
-  });
-}
-
-function followFile(stack, path) {
-  return followPath(stack, path);
-}
-
 
 FileSystem.prototype.cd = function (path) {
   if (path === '.') {
@@ -135,24 +141,9 @@ FileSystem.prototype.cd = function (path) {
     this.prevStack = tmp;
     return true;
   } else {
-    if (typeof path !== 'string') {
-      // weird bug where a string ending with '/' is considered an object
-      path = path.toString();
-    }
-    path = path.split('/');
-
-    var currentStack, newStack;
-
-    // Absolute path if path started with '/'
-    var absolutePath = path[0] === '';
-
-    if (absolutePath) {
-      currentStack = [this.root];
-    } else {
-      // RELATIVE
-      currentStack = this.pwdStack.slice();
-    }
-    newStack = followDirectory(currentStack, path);
+    var newStack = followPath(this.pwdStack.slice(), path, function (a) {
+      return a.directory;
+    });
     if (!newStack) {
       return false;
     }
@@ -175,29 +166,24 @@ FileSystem.prototype.pwd = function () {
   return path;
 };
 
+FileSystem.prototype.cat = function (path) {
+  var newStack = followPath(this.pwdStack.slice(), path, function (file) {
+    return !file.directory;
+  });
+  if (newStack === false) {
+    return false;
+  } else {
+    var targetFile = arrLast(newStack);
+    return targetFile.content;
+  }
+};
+
 FileSystem.prototype.ls = function (path, flags) {
   var i, targetFile, ret = '';
   if (!path) {
     targetFile = arrLast(this.pwdStack);
   } else {
-    if (typeof path !== 'string') {
-      // weird bug where a string ending with '/' is considered an object
-      path = path.toString();
-    }
-    var paths = path.split('/');
-
-    // Absolute path if path started with '/'
-    var absolutePath = path[0] === '';
-
-    var currentStack;
-    if (absolutePath) {
-      // ABSOLUTE path: our string started with a '/'
-      currentStack = [this.root];
-    } else {
-      // RELATIVE
-      currentStack = this.pwdStack.slice();
-    }
-    targetFile = arrLast(followFile(currentStack, paths));
+    targetFile = arrLast(followPath(this.pwdStack.slice(), path));
   }
 
   if (!targetFile) {

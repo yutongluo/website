@@ -170,6 +170,14 @@ var BashResume = {
     } else {
       this.echo(lsResult);
     }
+  },
+  cat: function(path) {
+    var catResult = fs.cat(path);
+    if (catResult === false) {
+      this.error("cat: " + path + ": no such file!");
+    } else {
+      this.echo(catResult);
+    }
   }
 };
 
