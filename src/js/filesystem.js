@@ -2,18 +2,23 @@
 /* exports Filesystem */
 
 'use strict';
-// Determines of a directory has a file.
-// Return that file if it does, else return null;
+/**
+ * Determines of a directory has a file.
+ * @param directory directory to search
+ * @param fileName fileName to look for
+ * @returns {*} Return that file if file exists in directory, else return false;
+ */
 function hasFile(directory, fileName) {
   // directory has to be, well, a directory
   if (!directory.directory) {
-    return null;
+    return false;
   }
-  for (var i in directory.content) {
+  for (var i = 0; i < directory.content.length; i++) {
     if (directory.content[i].name === fileName) {
       return directory.content[i];
     }
   }
+  return false;
 }
 
 function arrLast(arr) {
@@ -22,7 +27,9 @@ function arrLast(arr) {
 
 function FileSystem() {
   // function File(name, permissions, content, lastModified, user, group, directory)
-  var guestHome = new File('guest', 'drwxr-xr-x.', [], new Date(), 'guest', 'guest', true);
+  var README = new File('README', '-rwxr-xr-x.', 'Welcome!', new Date('May 2 2016'), 'guest', 'guest', false);
+
+  var guestHome = new File('guest', 'drwxr-xr-x.', [README], new Date(), 'guest', 'guest', true);
   var adminHome = new File('admin', 'drwxr-xr-x.', [], new Date('Feb 16 2016'), 'admin', 'admin', true);
   var homeContent = [guestHome, adminHome];
   var home = new File('home', 'drwxr-xr-x.', homeContent, new Date('Feb 3 2016'), 'root', 'root', true);
@@ -36,41 +43,77 @@ function FileSystem() {
 
   // remember previous directory for cd -
   this.prevStack = this.pwdStack.slice();
+
 }
 
-function followDirectory(current, paths) {
-  var tmpStack = [], temp;
-  for (var i = 0; i < paths.length; i++) {
-    if (paths[i] === '') {
-      continue;
-    }
-    temp = hasFile(current, paths[i]);
-    if (temp === null || temp === undefined || !temp.directory) {
-      return false;
-    } else {
-      tmpStack.push(temp);
-      current = temp;
-    }
+
+function printDetailedFile(file, sizePadding, userPadding, groupPadding) {
+  var ret = "";
+  ret += file.permissions;
+  ret += '  ';
+  ret += file.user + Array(userPadding - file.user.length + 1).join(' ');
+  ret += '  ';
+  ret += file.group + Array(groupPadding - file.group.length + 1).join(' ');
+  ret += '  ';
+  ret += Array(sizePadding - file.filesize.toString().length).join(' ') + file.filesize;
+  ret += '  ';
+  ret += file.lastModified.toDateString();
+  ret += '  ';
+  if (file.directory) {
+    ret += formatText('cyan', file.name);
+  } else {
+    ret += file.name;
   }
-  return tmpStack;
+  ret += '\n';
+  return ret;
 }
 
-// get a file
-function followFile(current, paths) {
+/**
+ * HOF function which follows a path.
+ * @param {File[]} stack current pwd stack
+ * @param {String[]} path split string path to target
+ * @param isValid Function(File) => Boolean
+ * @returns {*} false if the target Path does not exist, or the target file path points to returns false for isValid
+ *              A pwdstack if the target Path exists, and isValid is true for the target file.
+ */
+function followPath(stack, path, isValid) {
   var temp;
-  for (var i = 0; i < paths.length; i++) {
-    if (paths[i] === '') {
+  for (var i = 0; i < path.length; i++) {
+    if (path[i] === '' || path[i] === '.') {
       continue;
     }
-    temp = hasFile(current, paths[i]);
-    if (temp === null) {
-      // no such file or directory
+    if (path[i] === '..') {
+      // go one previous directory
+      if (stack.length > 1) {
+        stack.pop();
+      }
+      continue;
+    }
+    temp = hasFile(arrLast(stack), path[i]);
+    if (temp === false) {
       return false;
     } else {
-      current = temp;
+      stack.push(temp);
     }
   }
-  return current;
+  if (isValid) {
+    if (isValid(arrLast(stack))) {
+      return stack;
+    } else {
+      return false;
+    }
+  }
+  return stack;
+}
+
+function followDirectory(stack, path) {
+  return followPath(stack, path, function (a) {
+    return a.directory;
+  });
+}
+
+function followFile(stack, path) {
+  return followPath(stack, path);
 }
 
 
@@ -85,7 +128,7 @@ FileSystem.prototype.cd = function (path) {
       this.pwdStack.pop();
     }
     return true;
-  } else if (path === '-' ) {
+  } else if (path === '-') {
     // previous directory
     var tmp = this.pwdStack;
     this.pwdStack = this.prevStack;
@@ -96,38 +139,33 @@ FileSystem.prototype.cd = function (path) {
       // weird bug where a string ending with '/' is considered an object
       path = path.toString();
     }
-    var paths = path.split('/');
+    path = path.split('/');
 
-    // current is the current folder we're cding from
-    // targetPath is the path, if exists, to the destination from the current folder
-    var current, targetPath;
+    var currentStack, newStack;
 
     // Absolute path if path started with '/'
-    var absolutePath = paths[0] === '';
+    var absolutePath = path[0] === '';
 
     if (absolutePath) {
-      current = this.root;
+      currentStack = [this.root];
     } else {
       // RELATIVE
-      current = arrLast(this.pwdStack);
+      currentStack = this.pwdStack.slice();
     }
-    targetPath = followDirectory(current, paths);
-    if (!targetPath) {
+    newStack = followDirectory(currentStack, path);
+    if (!newStack) {
       return false;
     }
     this.prevStack = this.pwdStack.slice();
-    if (absolutePath) {
-      this.pwdStack = [this.root].concat(targetPath);
-    } else {
-      this.pwdStack = this.prevStack.concat(targetPath);
-    }
+    this.pwdStack = newStack;
+
     return true;
   }
 };
 
-FileSystem.prototype.pwd = function() {
+FileSystem.prototype.pwd = function () {
   var path = '';
-  for ( var i = 0; i < this.pwdStack.length; i++) {
+  for (var i = 0; i < this.pwdStack.length; i++) {
     path += this.pwdStack[i].name;
     if (i !== this.pwdStack.length - 1 && i !== 0) {
       // need to add a slash except for the root folder and the last folder
@@ -137,7 +175,7 @@ FileSystem.prototype.pwd = function() {
   return path;
 };
 
-FileSystem.prototype.ls = function(path, flags) {
+FileSystem.prototype.ls = function (path, flags) {
   var i, targetFile, ret = '';
   if (!path) {
     targetFile = arrLast(this.pwdStack);
@@ -147,24 +185,27 @@ FileSystem.prototype.ls = function(path, flags) {
       path = path.toString();
     }
     var paths = path.split('/');
-    var current;
-    if (paths[0] === '') {
+
+    // Absolute path if path started with '/'
+    var absolutePath = path[0] === '';
+
+    var currentStack;
+    if (absolutePath) {
       // ABSOLUTE path: our string started with a '/'
-      current = this.root;
+      currentStack = [this.root];
     } else {
       // RELATIVE
-      current = arrLast(this.pwdStack);
+      currentStack = this.pwdStack.slice();
     }
-    targetFile = followFile(current, paths);
+    targetFile = arrLast(followFile(currentStack, paths));
   }
 
   if (!targetFile) {
     return false;
   } else {
-    if (targetFile.directory) {
-      // is a directory
-      if (!flags) {
-        // no flags
+    if (!flags) {
+      // no flags
+      if (targetFile.directory) {
         for (i = 0; i < targetFile.content.length; i++) {
           if (targetFile.content.directory) {
             ret += formatText('cyan', targetFile.content[i].name);
@@ -173,17 +214,20 @@ FileSystem.prototype.ls = function(path, flags) {
           }
           ret += ' ';
         }
-      } else {
-        if (flags.indexOf('l') !== -1) {
-          // detailed mode
-          // padding for formatting.
-          var sizePadding = 0, userPadding = 0, groupPadding = 0;
-          var file;
+      }
+      else {
+        ret += targetFile.name;
+      }
+    } else {
+      if (flags.indexOf('l') !== -1) {
+        if (targetFile.directory) {
 
+          // determine padding for formatting
+          var sizePadding = 0, userPadding = 0, groupPadding = 0;
           for (i = 0; i < targetFile.content.length; i++) {
-            file = targetFile.content[i];
-            if (file.size.toString().length > sizePadding) {
-              sizePadding = file.size.toString().length;
+            var file = targetFile.content[i];
+            if (file.filesize.toString().length > sizePadding) {
+              sizePadding = file.filesize.toString().length;
             }
             if (file.user.length > userPadding) {
               userPadding = file.user.length;
@@ -193,26 +237,18 @@ FileSystem.prototype.ls = function(path, flags) {
             }
           }
 
+          // print the files given the padding
           for (i = 0; i < targetFile.content.length; i++) {
-            file = targetFile.content[i];
-            ret += file.permissions;
-            ret += '  ';
-            ret += file.user + Array(userPadding - file.user.length + 1).join(' ');
-            ret += '  ';
-            ret += file.group + Array(groupPadding - file.group.length + 1).join(' ');
-            ret += '  ';
-            ret += Array(sizePadding - file.size.toString().length).join(' ') + file.size;
-            ret += '  ';
-            ret += file.lastModified.toDateString();
-            ret += '  ';
-            if (file.directory) {
-              ret += formatText('cyan', targetFile.content[i].name);
-            } else {
-              ret += targetFile.content[i].name;
-            }
-            ret += '\n';
+            ret += printDetailedFile(targetFile.content[i], sizePadding, userPadding, groupPadding);
           }
+        } else {
+          ret += printDetailedFile(
+            targetFile,
+            targetFile.filesize.toString().length,
+            targetFile.user.length,
+            targetFile.group.length);
         }
+
       }
     }
     return ret;
