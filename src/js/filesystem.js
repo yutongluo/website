@@ -25,21 +25,10 @@ function arrLast(arr) {
   return arr[arr.length - 1];
 }
 
-function FileSystem() {
-  // function File(name, permissions, content, lastModified, user, group, directory)
-  var README = new File('README', '-rwxr-xr-x.', 'Welcome!', new Date('May 2 2016'), 'guest', 'guest', false);
+function FileSystem(pwdStack, root) {
 
-  var guestHome = new File('guest', 'drwxr-xr-x.', [README], new Date(), 'guest', 'guest', true);
-  var adminHome = new File('admin', 'drwxr-xr-x.', [], new Date('Feb 16 2016'), 'admin', 'admin', true);
-  var homeContent = [guestHome, adminHome];
-  var home = new File('home', 'drwxr-xr-x.', homeContent, new Date('Feb 3 2016'), 'root', 'root', true);
-  this.root = new File('/', 'drwxr-xr-x.', [home], new Date('July 3 2013'), 'root', '502', true);
-  this.pwdStack = [];
-
-  // default $HOME is just /home/guest
-  this.pwdStack.push(this.root);
-  this.pwdStack.push(home);
-  this.pwdStack.push(guestHome);
+  this.pwdStack = pwdStack;
+  this.root = root;
 
   // remember previous directory for cd -
   this.prevStack = this.pwdStack.slice();
@@ -73,8 +62,8 @@ function printDetailedFile(file, sizePadding, userPadding, groupPadding) {
  * @param {File[]} stack current stack from which the path extends
  * @param {String} path path to target
  * @param {function} [isValid] (file) -> boolean
- * @returns {*} false if the target Path does not exist, or the target file path points to returns false for isValid
- *              A pwdstack if the target Path exists, and isValid is true for the target file.
+ * @returns {*} false if the target Path does not exist, or
+ *              a pwdstack if the target Path exists and isValid is true for the target file.
  */
 function followPath(stack, path, isValid) {
   var temp;
@@ -168,6 +157,7 @@ FileSystem.prototype.pwd = function () {
 
 FileSystem.prototype.cat = function (path) {
   var newStack = followPath(this.pwdStack.slice(), path, function (file) {
+    // follow path as long as it's not a directory
     return !file.directory;
   });
   if (newStack === false) {
@@ -189,14 +179,73 @@ FileSystem.prototype.ls = function (path, flags) {
   if (!targetFile) {
     return false;
   } else {
-    if (!flags) {
+    var fileList = targetFile.content.slice();
+
+    // SORTING
+    if (targetFile.directory) {
+      // sorting only matters on directories
+      // (since ls on non-directory file returns only that file)
+
+      var sortFunction = function (a, b) {
+        return a.name > b.name;
+      };
+
+      if (flags.indexOf('t') !== -1) {
+        // sort by time
+        sortFunction = function (a, b) {
+          return a.lastModified < b.lastModified;
+        };
+      } else if (flags.indexOf('S') !== -1) {
+        sortFunction = function (a, b) {
+          return a.filesize < b.filesize;
+        };
+      }
+      // sort!
+      fileList.sort(sortFunction);
+      if (flags.indexOf('r') > 0) {
+        fileList.reverse();
+      }
+    }
+
+    // DETAIL
+    if (flags.indexOf('l') !== -1) {
+      if (targetFile.directory) {
+
+        // determine padding for formatting
+        var sizePadding = 0, userPadding = 0, groupPadding = 0;
+        for (i = 0; i < fileList.length; i++) {
+          var file = fileList[i];
+          if (file.filesize.toString().length > sizePadding) {
+            sizePadding = file.filesize.toString().length;
+          }
+          if (file.user.length > userPadding) {
+            userPadding = file.user.length;
+          }
+          if (file.group.length > groupPadding) {
+            groupPadding = file.group.length;
+          }
+        }
+
+        // print the files given the padding
+        for (i = 0; i < fileList.length; i++) {
+          ret += printDetailedFile(fileList[i], sizePadding, userPadding, groupPadding);
+        }
+      } else {
+        ret += printDetailedFile(
+          targetFile,
+          targetFile.filesize.toString().length,
+          targetFile.user.length,
+          targetFile.group.length);
+      }
+    }
+    else {
       // no flags
       if (targetFile.directory) {
-        for (i = 0; i < targetFile.content.length; i++) {
-          if (targetFile.content.directory) {
-            ret += formatText('cyan', targetFile.content[i].name);
+        for (i = 0; i < fileList.length; i++) {
+          if (fileList[i].directory) {
+            ret += formatText('cyan', fileList[i].name);
           } else {
-            ret += targetFile.content[i].name;
+            ret += fileList[i].name;
           }
           ret += ' ';
         }
@@ -204,39 +253,8 @@ FileSystem.prototype.ls = function (path, flags) {
       else {
         ret += targetFile.name;
       }
-    } else {
-      if (flags.indexOf('l') !== -1) {
-        if (targetFile.directory) {
-
-          // determine padding for formatting
-          var sizePadding = 0, userPadding = 0, groupPadding = 0;
-          for (i = 0; i < targetFile.content.length; i++) {
-            var file = targetFile.content[i];
-            if (file.filesize.toString().length > sizePadding) {
-              sizePadding = file.filesize.toString().length;
-            }
-            if (file.user.length > userPadding) {
-              userPadding = file.user.length;
-            }
-            if (file.group.length > groupPadding) {
-              groupPadding = file.group.length;
-            }
-          }
-
-          // print the files given the padding
-          for (i = 0; i < targetFile.content.length; i++) {
-            ret += printDetailedFile(targetFile.content[i], sizePadding, userPadding, groupPadding);
-          }
-        } else {
-          ret += printDetailedFile(
-            targetFile,
-            targetFile.filesize.toString().length,
-            targetFile.user.length,
-            targetFile.group.length);
-        }
-
-      }
     }
     return ret;
   }
-};
+}
+;

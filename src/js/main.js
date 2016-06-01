@@ -2,7 +2,7 @@
 'use strict';
 
 // HELPER FUNCTIONS AND DEFINITIONS
-var getAge = function() {
+var getAge = function () {
   var today = new Date();
   var bday = new Date();
   bday.setYear(1993);
@@ -12,7 +12,27 @@ var getAge = function() {
   return Math.abs(ageDate.getUTCFullYear() - 1970);
 };
 
-var fs = new FileSystem();
+
+var initFS = function () {
+  // function File(name, permissions, content, lastModified, user, group, directory)
+  var README = new File('README', '-rwxr-xr-x.', 'Welcome!', new Date('May 2 2016'), 'guest', 'guest', false);
+
+  var guestHome = new File('guest', 'drwxr-xr-x.', [README], new Date(), 'guest', 'guest', true);
+  var adminHome = new File('admin', 'drwxr-xr-x.', [], new Date('Feb 16 2016'), 'admin', 'admin', true);
+  var homeContent = [guestHome, adminHome];
+  var home = new File('home', 'drwxr-xr-x.', homeContent, new Date('Feb 3 2016'), 'root', 'root', true);
+  var root = new File('/', 'drwxr-xr-x.', [home], new Date('July 3 2013'), 'root', '502', true);
+  var pwdStack = [];
+
+  // default $HOME is just /home/guest
+  pwdStack.push(root);
+  pwdStack.push(home);
+  pwdStack.push(guestHome);
+
+  return new FileSystem(pwdStack, root);
+};
+
+var fs = initFS();
 
 // EXPERIENCES
 var experiences = [
@@ -71,7 +91,7 @@ var experiences = [
 // BASH RESUME OBJECT
 var BashResume = {
   version: '0.1',
-  help: function() {
+  help: function () {
     this.echo(formatText('bold', 'Command Line Resum&eacute; version ' + BashResume.version +
       '-release (i686-pc-linux-gnu)'));
     this.echo('Available commands:');
@@ -85,10 +105,10 @@ var BashResume = {
 
 
     this.echo(
-      formatText('magenta', 'Don\'t like the command line? Go to ')  + 'https://gui.yutongluo.com\n');
+      formatText('magenta', 'Don\'t like the command line? Go to ') + 'https://gui.yutongluo.com\n');
 
   },
-  whoami: function() {
+  whoami: function () {
     this.echo(formatText('heading', 'Basic info:'));
     this.echo(formatText('bold', 'Subject Name: ') + 'Yutong Luo');
     this.echo(formatText('bold', 'Subject Role: ') + 'Software Developer');
@@ -114,16 +134,16 @@ var BashResume = {
     this.echo(formatText('skill', 'Languages'));
     this.echo('C++, Python, C, Java 8, JavaScript, jQuery, HTML, CSS, Bash, Swift\n');
   },
-  experience: function() {
+  experience: function () {
     for (var i = 0; i < experiences.length; i++) {
       this.echo(experiences[i].getString());
     }
   },
-  about: function() {
+  about: function () {
     this.echo('This site is made with jquery.terminal.');
     this.echo('Copyright &copy; Yutong Luo 2016\n');
   },
-  projects: function() {
+  projects: function () {
     this.echo(formatText('heading', 'Hackathons'));
     this.echo(formatText('company', 'Hack the North') + ': ' + formatText('violet', 'Bloomberg API Prize'));
     this.echo(formatText('yellow', 'Stockslate: A webapp which ranks stocks based on investor profiles\n'));
@@ -133,7 +153,7 @@ var BashResume = {
     this.echo(formatText('yellow', 'A web app which hosts car pooling for IBM employees\n'));
     this.echo(splitLines(
       'Designed and implemented user interactions and dynamic HTML generation with JavaScript and jQuery\n'
-      ));
+    ));
     this.echo(formatText('company', 'Groupon Geekon') + ': ' + formatText('violet', 'No prize but had fun'));
     this.echo(formatText('yellow', 'A large scale system within Groupon which aggregates multiple services together'));
     this.echo(splitLines('Implemented back-end API using Dropwizard in Java\n'));
@@ -144,17 +164,17 @@ var BashResume = {
     this.echo(formatText('company', 'Timecatcher'));
     this.echo('A smart calendar Android app which schedules a user\'s day using AI algorithms\n');
   },
-  pwd: function() {
+  pwd: function () {
     this.echo(fs.pwd());
   },
-  cd: function(path) {
+  cd: function (path) {
     if (!path) {
       fs.cd('/home/guest');
     } else if (!fs.cd(path)) {
       this.error('No such directory!');
     }
   },
-  ls: function() {
+  ls: function () {
     var flags = '';
     var path = '';
     for (var i = 0; i < arguments.length; i++) {
@@ -171,7 +191,7 @@ var BashResume = {
       this.echo(lsResult);
     }
   },
-  cat: function(path) {
+  cat: function (path) {
     var catResult = fs.cat(path);
     if (catResult === false) {
       this.error("cat: " + path + ": no such file!");
@@ -182,7 +202,7 @@ var BashResume = {
 };
 
 // READY SET LAUNCH
-$(document).ready(function() {
+$(document).ready(function () {
   $('#term').terminal(BashResume, {
     greetings: '[[g;#fdf6e3;]__     __    _                      _\n' +
     '\\ \\   / /   | |                    | |\n' +
@@ -194,18 +214,19 @@ $(document).ready(function() {
     '                            |___/ \n\n]' +
     'Welcome to Command Line Resum&eacute; v' + BashResume.version + '. Type ' +
     formatText('green', 'help') + ' to start\n',
-    prompt: function(p){
+    prompt: function (p) {
       var path = fs.pwd();
       if (fs.pwd() === '/home/guest') {
         path = '~';
       }
       p('guest@yutongluo:' + path + '$ ');
     },
-    onBlur: function() {
+    onBlur: function () {
       // prevent losing focus
       return false;
     },
     checkArity: false,
     completion: true,
-    history: true});
+    history: true
+  });
 });
