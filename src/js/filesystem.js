@@ -25,16 +25,36 @@ function arrLast(arr) {
   return arr[arr.length - 1];
 }
 
-function FileSystem(pwdStack, root) {
+function FileSystem(pwdStack, root, user) {
 
   this.pwdStack = pwdStack;
   this.root = root;
+  this.user = user;
 
   // remember previous directory for cd -
   this.prevStack = this.pwdStack.slice();
-
 }
 
+/**
+ * Determines if the current user has read permission to a certain file
+ * @param file
+ * @returns {boolean} true for can read, false for permission denied
+ */
+FileSystem.prototype.hasReadPermission = function (file) {
+  // [d][usr][grp][all]
+  // 0   123  456  789
+  // d   rwx  rwx  rwx
+  var readIndex = 7; // 7 is the all read
+  if (file.user === this.user.name) {
+    // user read
+    readIndex = 1;
+  }
+  if (file.group === this.user.group) {
+    // group read
+    readIndex = 4;
+  }
+  return file.permissions[readIndex] === 'r';
+};
 
 function printDetailedFile(file, sizePadding, userPadding, groupPadding) {
   var ret = "";
@@ -161,9 +181,12 @@ FileSystem.prototype.cat = function (path) {
     return !file.directory;
   });
   if (newStack === false) {
-    return false;
+    throw new Error('cat: ' + path + ': no such file!');
   } else {
     var targetFile = arrLast(newStack);
+    if (!this.hasReadPermission(targetFile)) {
+      throw new Error('cat: ' + path + ': Permission denied');
+    }
     return targetFile.content;
   }
 };
@@ -202,7 +225,7 @@ FileSystem.prototype.ls = function (path, flags) {
       }
       // sort!
       fileList.sort(sortFunction);
-      if (flags.indexOf('r') > 0) {
+      if (flags.indexOf('r') >= 0) {
         fileList.reverse();
       }
     }
@@ -237,9 +260,8 @@ FileSystem.prototype.ls = function (path, flags) {
           targetFile.user.length,
           targetFile.group.length);
       }
-    }
-    else {
-      // no flags
+    } else {
+      // not detailed
       if (targetFile.directory) {
         for (i = 0; i < fileList.length; i++) {
           if (fileList[i].directory) {
@@ -256,5 +278,4 @@ FileSystem.prototype.ls = function (path, flags) {
     }
     return ret;
   }
-}
-;
+};

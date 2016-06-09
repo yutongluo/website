@@ -15,10 +15,17 @@ var getAge = function () {
 
 var initFS = function () {
   // function File(name, permissions, content, lastModified, user, group, directory)
-  var README = new File('README', '-rwxr-xr-x.', 'Welcome!', new Date('May 2 2016'), 'guest', 'guest', false);
+  var readme_content = 'Welcome! \n' +
+    'Common commands such as ls, cd, cat, pwd works. ls accepts flags such as -a, -t, -l, -S. \n' +
+    'cat respects file permissions. \n' +
+    'These commands are implemented in vanilla JS for fun.' ;
+
+  var README = new File('README', '-rw-r--r--.', readme_content, new Date('May 2 2016'), 'guest', 'guest', false);
+
+  var cakeislie = new File('?', '-rw-rw----.', 'the cake is a lie', new Date('June 9 2016'), 'admin', 'admin', false);
 
   var guestHome = new File('guest', 'drwxr-xr-x.', [README], new Date(), 'guest', 'guest', true);
-  var adminHome = new File('admin', 'drwxr-xr-x.', [], new Date('Feb 16 2016'), 'admin', 'admin', true);
+  var adminHome = new File('admin', 'drwxr-xr-x.', [cakeislie], new Date('Feb 16 2016'), 'admin', 'admin', true);
   var homeContent = [guestHome, adminHome];
   var home = new File('home', 'drwxr-xr-x.', homeContent, new Date('Feb 3 2016'), 'root', 'root', true);
   var root = new File('/', 'drwxr-xr-x.', [home], new Date('July 3 2013'), 'root', '502', true);
@@ -29,7 +36,7 @@ var initFS = function () {
   pwdStack.push(home);
   pwdStack.push(guestHome);
 
-  return new FileSystem(pwdStack, root);
+  return new FileSystem(pwdStack, root, {'name': 'guest', 'group': 'guest'});
 };
 
 var fs = initFS();
@@ -54,8 +61,8 @@ var experiences = [
     'Fixed and wrote unit tests for ~40 bugs including XSS vulnerabilities, 2D distance calculations, and Excel ' +
     'export errors, totaling a weighted value of $192,840. Chasing bugs across stacks was actually kind of fun. ' +
     ' Led web accessibility project with a team of 2 making ' +
-    'web interfaces ADA compliant. Feedback from stakeholder: \"There\'s a lot of work to be done, but overall ' +
-    'good work!\"'
+    'web interfaces ADA compliant. Feedback from stakeholder: \'There\'s a lot of work to be done, but overall ' +
+    'good work!\''
   ),
   new Experience(
     'IBM',
@@ -192,11 +199,12 @@ var BashResume = {
     }
   },
   cat: function (path) {
-    var catResult = fs.cat(path);
-    if (catResult === false) {
-      this.error("cat: " + path + ": no such file!");
-    } else {
+    try {
+      var catResult = fs.cat(path);
       this.echo(catResult);
+
+    } catch (error) {
+      this.error(error.message);
     }
   }
 };
