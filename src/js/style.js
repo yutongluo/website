@@ -23,6 +23,7 @@
   };
 
   var colWidth = 80;
+  exports.colWidth = colWidth;
 
   var formatText = function (format, text) {
     return styles[format] + text + ']';
