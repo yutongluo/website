@@ -2,28 +2,6 @@
 /* exports Filesystem */
 
 'use strict';
-/**
- * Determines of a directory has a file.
- * @param directory directory to search
- * @param fileName fileName to look for
- * @returns {*} Return that file if file exists in directory, else return false;
- */
-function hasFile(directory, fileName) {
-  // directory has to be, well, a directory
-  if (!directory.directory) {
-    return false;
-  }
-  for (var i = 0; i < directory.content.length; i++) {
-    if (directory.content[i].name === fileName) {
-      return directory.content[i];
-    }
-  }
-  return false;
-}
-
-function arrLast(arr) {
-  return arr[arr.length - 1];
-}
 
 function FileSystem(pwdStack, root, user) {
 
@@ -34,6 +12,32 @@ function FileSystem(pwdStack, root, user) {
   // remember previous directory for cd -
   this.prevStack = this.pwdStack.slice();
 }
+
+
+/**
+ * Determines of a directory has a file.
+ * @param directory directory to search
+ * @param fileName fileName to look for
+ * @returns {*} Return that file if file exists in directory, else return false;
+ */
+function hasFile(directory, fileName) {
+  // directory has to be, well, a directory
+  if (!directory.isDirectory) {
+    return false;
+  }
+  for (var i = 0; i < directory.content.length; i++) {
+    if (directory.content[i].name === fileName) {
+      return directory.content[i];
+    }
+  }
+  return false;
+}
+
+
+function arrLast(arr) {
+  return arr[arr.length - 1];
+}
+
 
 /**
  * Determines if the current user has read permission to a certain file
@@ -56,26 +60,6 @@ FileSystem.prototype.hasReadPermission = function (file) {
   return file.permissions[readIndex] === 'r';
 };
 
-function printDetailedFile(file, sizePadding, userPadding, groupPadding) {
-  var ret = "";
-  ret += file.permissions;
-  ret += '  ';
-  ret += file.user + Array(userPadding - file.user.length + 1).join(' ');
-  ret += '  ';
-  ret += file.group + Array(groupPadding - file.group.length + 1).join(' ');
-  ret += '  ';
-  ret += Array(sizePadding - file.filesize.toString().length).join(' ') + file.filesize;
-  ret += '  ';
-  ret += file.lastModified.toDateString();
-  ret += '  ';
-  if (file.directory) {
-    ret += formatText('cyan', file.name);
-  } else {
-    ret += file.name;
-  }
-  ret += '\n';
-  return ret;
-}
 
 /**
  * Follows a path given current pwd and path.
@@ -151,7 +135,7 @@ FileSystem.prototype.cd = function (path) {
     return true;
   } else {
     var newStack = followPath(this.pwdStack.slice(), path, function (a) {
-      return a.directory;
+      return a.isDirectory;
     });
     if (!newStack) {
       return false;
@@ -162,6 +146,7 @@ FileSystem.prototype.cd = function (path) {
     return true;
   }
 };
+
 
 FileSystem.prototype.pwd = function () {
   var path = '';
@@ -175,10 +160,11 @@ FileSystem.prototype.pwd = function () {
   return path;
 };
 
+
 FileSystem.prototype.cat = function (path) {
   var newStack = followPath(this.pwdStack.slice(), path, function (file) {
     // follow path as long as it's not a directory
-    return !file.directory;
+    return !file.isDirectory;
   });
   if (newStack === false) {
     throw new Error('cat: ' + path + ': no such file!');
@@ -190,6 +176,38 @@ FileSystem.prototype.cat = function (path) {
     return targetFile.content;
   }
 };
+/**
+ * Helper function for sorting in ls. sorts alphanumerically by default
+ * @param files files to sort
+ * @param flags ls flags such as -t (timestamp) -S (size) and -r (reverse)
+ * @returns {*}
+ */
+function lsSort(files, flags) {
+  var fileList = files.slice();
+
+  // default sort is alphanumeric
+  var sortFunction = function (a, b) {
+    return a.name > b.name;
+  };
+
+  if (flags.indexOf('t') !== -1) {
+    // sort by time
+    sortFunction = function (a, b) {
+      return a.lastModified < b.lastModified;
+    };
+  } else if (flags.indexOf('S') !== -1) {
+    // sort by size
+    sortFunction = function (a, b) {
+      return a.filesize < b.filesize;
+    };
+  }
+  // sort!
+  fileList.sort(sortFunction);
+  if (flags.indexOf('r') >= 0) {
+    fileList.reverse();
+  }
+  return fileList;
+}
 
 FileSystem.prototype.ls = function (path, flags) {
   var i, targetFile, ret = '';
@@ -204,36 +222,11 @@ FileSystem.prototype.ls = function (path, flags) {
   } else {
     var fileList = targetFile.content.slice();
 
-    // SORTING
-    if (targetFile.directory) {
-      // sorting only matters on directories
-      // (since ls on non-directory file returns only that file)
-
-      var sortFunction = function (a, b) {
-        return a.name > b.name;
-      };
-
-      if (flags.indexOf('t') !== -1) {
-        // sort by time
-        sortFunction = function (a, b) {
-          return a.lastModified < b.lastModified;
-        };
-      } else if (flags.indexOf('S') !== -1) {
-        sortFunction = function (a, b) {
-          return a.filesize < b.filesize;
-        };
-      }
-      // sort!
-      fileList.sort(sortFunction);
-      if (flags.indexOf('r') >= 0) {
-        fileList.reverse();
-      }
-    }
+    fileList = lsSort(fileList, flags);
 
     // DETAIL
     if (flags.indexOf('l') !== -1) {
-      if (targetFile.directory) {
-
+      if (targetFile.isDirectory) {
         // determine padding for formatting
         var sizePadding = 0, userPadding = 0, groupPadding = 0;
         for (i = 0; i < fileList.length; i++) {
@@ -251,20 +244,20 @@ FileSystem.prototype.ls = function (path, flags) {
 
         // print the files given the padding
         for (i = 0; i < fileList.length; i++) {
-          ret += printDetailedFile(fileList[i], sizePadding, userPadding, groupPadding);
+          ret += fileList[i].printDetailedFile(sizePadding, userPadding, groupPadding);
         }
       } else {
-        ret += printDetailedFile(
-          targetFile,
+        // ls -l of a single file
+        ret += targetFile.printDetailedFile(
           targetFile.filesize.toString().length,
           targetFile.user.length,
           targetFile.group.length);
       }
     } else {
       // not detailed
-      if (targetFile.directory) {
+      if (targetFile.isDirectory) {
         for (i = 0; i < fileList.length; i++) {
-          if (fileList[i].directory) {
+          if (fileList[i].isDirectory) {
             ret += formatText('cyan', fileList[i].name);
           } else {
             ret += fileList[i].name;

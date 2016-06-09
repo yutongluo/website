@@ -3,14 +3,7 @@
 
 'use strict';
 
-var monthNames = [
-  'Jan', 'Feb', 'Mar',
-  'Apr', 'May', 'Jun', 'Jul',
-  'Aug', 'Sep', 'Oct',
-  'Nov', 'Dec'
-];
-
-function File(name, permissions, content, lastModified, user, group, directory) {
+function File(name, permissions, content, lastModified, user, group, isDirectory) {
   this.name = name;
   this.permissions = permissions;
   this.content = content;
@@ -18,21 +11,36 @@ function File(name, permissions, content, lastModified, user, group, directory) 
   this.lastModified = lastModified;
   this.user = user;
   this.group = group;
-  this.directory = directory;
+  this.isDirectory = isDirectory;
 }
 
-var dateString = function(date) {
-  return monthNames[date.getMonth()] + '  ' +
-    date.getDay() + '  ' +
-    date.getHours() + ':' +
-    date.getMinutes();
+
+/**
+ * Helper function for ls -l which prints a file in detailed format
+ * Padding is require to make ls -l look gloriously aligned
+ * @param sizePadding padding for the size field
+ * @param userPadding padding for the user field
+ * @param groupPadding padding for the group
+ * @returns {string}
+ */
+File.prototype.printDetailedFile = function (sizePadding, userPadding, groupPadding) {
+  var ret = "";
+  ret += this.permissions;
+  ret += '  ';
+  ret += this.user + Array(userPadding - this.user.length + 1).join(' ');
+  ret += '  ';
+  ret += this.group + Array(groupPadding - this.group.length + 1).join(' ');
+  ret += '  ';
+  ret += Array(sizePadding - this.filesize.toString().length).join(' ') + this.filesize;
+  ret += '  ';
+  ret += this.lastModified.toDateString();
+  ret += '  ';
+  if (this.isDirectory) {
+    ret += formatText('cyan', this.name);
+  } else {
+    ret += this.name;
+  }
+  ret += '\n';
+  return ret;
 };
 
-File.prototype.getString = function (detailed) {
-  if (detailed) {
-    return this.name + ' ';
-  } else {
-    return this.permissions + '  ' + this.user + '  ' + this.group + '  ' + this.filesize + '  '+
-    dateString(this.lastModified) + '  ' + this.directory ? formatText('blue', this.name) : this.name;
-  }
-};

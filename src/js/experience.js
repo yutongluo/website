@@ -3,7 +3,7 @@
 'use strict';
 
 // EXPERIENCE CLASS
-function Experience(name, position, location, date, description){
+function Experience(name, position, location, date, description) {
   this.name = name;
   this.position = position;
   this.location = location;

@@ -14,18 +14,18 @@ var getAge = function () {
 
 
 var initFS = function () {
-  // function File(name, permissions, content, lastModified, user, group, directory)
+  // function File(name, permissions, content, lastModified, user, group, isDirectory)
   var readme_content = 'Welcome! \n' +
     'Common commands such as ls, cd, cat, pwd works. ls accepts flags such as -a, -t, -l, -S. \n' +
     'cat respects file permissions. \n' +
-    'These commands are implemented in vanilla JS for fun.' ;
+    'These commands are implemented in vanilla JS for fun.';
 
   var README = new File('README', '-rw-r--r--.', readme_content, new Date('May 2 2016'), 'guest', 'guest', false);
 
-  var cakeislie = new File('?', '-rw-rw----.', 'the cake is a lie', new Date('June 9 2016'), 'admin', 'admin', false);
+  var cakeIsALie = new File('?', '-rw-rw----.', 'the cake is a lie', new Date('June 9 2016'), 'admin', 'admin', false);
 
   var guestHome = new File('guest', 'drwxr-xr-x.', [README], new Date(), 'guest', 'guest', true);
-  var adminHome = new File('admin', 'drwxr-xr-x.', [cakeislie], new Date('Feb 16 2016'), 'admin', 'admin', true);
+  var adminHome = new File('admin', 'drwxr-xr-x.', [cakeIsALie], new Date('Feb 16 2016'), 'admin', 'admin', true);
   var homeContent = [guestHome, adminHome];
   var home = new File('home', 'drwxr-xr-x.', homeContent, new Date('Feb 3 2016'), 'root', 'root', true);
   var root = new File('/', 'drwxr-xr-x.', [home], new Date('July 3 2013'), 'root', '502', true);
@@ -40,60 +40,6 @@ var initFS = function () {
 };
 
 var fs = initFS();
-
-// EXPERIENCES
-var experiences = [
-  new Experience(
-    'Groupon',
-    'Computational Marketing Intern',
-    'Seattle, WA',
-    'May 2015–Aug 2015',
-    'Evaluated Spark and SparkSQL as replacement for existing Hadoop Implementation. Saw 5-10x performance increase,' +
-    ' proposed migration plan and identified key blockers and potential solutions. ' +
-    'Implemented metrics, API, and testing framework for low-latency microservice with Play API and Cassandra. ' +
-    'The full-times were busy with the existing system, so I got to do all the glorious coding!'
-  ),
-  new Experience(
-    'Top Hat',
-    'Full-stack Developer Intern',
-    'Toronto, ON',
-    'Sept 2014–Dec 2014',
-    'Fixed and wrote unit tests for ~40 bugs including XSS vulnerabilities, 2D distance calculations, and Excel ' +
-    'export errors, totaling a weighted value of $192,840. Chasing bugs across stacks was actually kind of fun. ' +
-    ' Led web accessibility project with a team of 2 making ' +
-    'web interfaces ADA compliant. Feedback from stakeholder: \'There\'s a lot of work to be done, but overall ' +
-    'good work!\''
-  ),
-  new Experience(
-    'IBM',
-    'Compiler Optimization Intern',
-    'Markham, ON',
-    'Jan 2014–Apr 2014',
-    'Created Node.js application that aggregated node-load output and plotted the data using d3.js. ' +
-    'Refactored C++ compiler codebase to support JIT compilation for different languages. Humbling experience to ' +
-    'appreciate how much work goes into making and optimizing a compiler.'
-  ),
-  new Experience(
-    'Maxxian',
-    'Software Developer Intern',
-    'Markham, ON',
-    'May 2013–Aug 2013',
-    'Developed MVC prototype replacement of current product with Django. Improved page load time by over 60 times ' +
-    'implemented RESTful API which returns data from Postgres in JSON format. Significantly improved excel report ' +
-    'generation times by caching and reusing data. First time working at a start up. Learned all my linux basics here,' +
-    ' from setting up physical servers, to managing VMs with hypervisors, all the way to writing, installing and testing ' +
-    'the software. '
-  ),
-  new Experience(
-    'BMO InvestorLine',
-    'E-Business Specialist',
-    'Toronto, ON',
-    'Sept 2012–Dec 2012',
-    'Initiated automation effort to significantly improve efficiency of generating HTML tables from Excel documents ' +
-    'using VBA. Had a friendly competition with a fellow intern on who will finish it first. He gave up in the end. ' +
-    'Developed dynamic PDF forms using JavaScript to enforce correct data entry while providing easier client experience.'
-  )
-];
 
 // BASH RESUME OBJECT
 var BashResume = {
@@ -142,13 +88,66 @@ var BashResume = {
     this.echo('C++, Python, C, Java 8, JavaScript, jQuery, HTML, CSS, Bash, Swift\n');
   },
   experience: function () {
+    // EXPERIENCES
+    var experiences = [
+      new Experience(
+        'Groupon',
+        'Computational Marketing Intern',
+        'Seattle, WA',
+        'May 2015–Aug 2015',
+        'Evaluated Spark and SparkSQL as replacement for existing Hadoop Implementation. Saw 5-10x performance increase,' +
+        ' proposed migration plan and identified key blockers and potential solutions. ' +
+        'Implemented metrics, API, and testing framework for low-latency microservice with Play API and Cassandra. ' +
+        'The full-times were busy with the existing system, so I got to do all the glorious coding!'
+      ),
+      new Experience(
+        'Top Hat',
+        'Full-stack Developer Intern',
+        'Toronto, ON',
+        'Sept 2014–Dec 2014',
+        'Fixed and wrote unit tests for ~40 bugs including XSS vulnerabilities, 2D distance calculations, and Excel ' +
+        'export errors, totaling a weighted value of $192,840. Chasing bugs across stacks was actually kind of fun. ' +
+        ' Led web accessibility project with a team of 2 making ' +
+        'web interfaces ADA compliant. Feedback from stakeholder: \'There\'s a lot of work to be done, but overall ' +
+        'good work!\''
+      ),
+      new Experience(
+        'IBM',
+        'Compiler Optimization Intern',
+        'Markham, ON',
+        'Jan 2014–Apr 2014',
+        'Created Node.js application that aggregated node-load output and plotted the data using d3.js. ' +
+        'Refactored C++ compiler codebase to support JIT compilation for different languages. Humbling experience to ' +
+        'appreciate how much work goes into making and optimizing a compiler.'
+      ),
+      new Experience(
+        'Maxxian',
+        'Software Developer Intern',
+        'Markham, ON',
+        'May 2013–Aug 2013',
+        'Developed MVC prototype replacement of current product with Django. Improved page load time by over 60 times ' +
+        'implemented RESTful API which returns data from Postgres in JSON format. Significantly improved excel report ' +
+        'generation times by caching and reusing data. First time working at a start up. Learned all my linux basics here,' +
+        ' from setting up physical servers, to managing VMs with hypervisors, all the way to writing, installing and testing ' +
+        'the software. '
+      ),
+      new Experience(
+        'BMO InvestorLine',
+        'E-Business Specialist',
+        'Toronto, ON',
+        'Sept 2012–Dec 2012',
+        'Initiated automation effort to significantly improve efficiency of generating HTML tables from Excel documents ' +
+        'using VBA. Had a friendly competition with a fellow intern on who will finish it first. He gave up in the end. ' +
+        'Developed dynamic PDF forms using JavaScript to enforce correct data entry while providing easier client experience.'
+      )
+    ];
     for (var i = 0; i < experiences.length; i++) {
       this.echo(experiences[i].getString());
     }
   },
   about: function () {
     this.echo('This site is made with jquery.terminal.');
-    this.echo('Copyright &copy; Yutong Luo 2016\n');
+    this.echo('Copyright &copy; Yutong Luo ' + new Date().getFullYear() + '\n');
   },
   projects: function () {
     this.echo(formatText('heading', 'Hackathons'));
