@@ -1,6 +1,7 @@
 archive
 node_modules
 dist
+scripts
 .DS_Store
 .swp
 
