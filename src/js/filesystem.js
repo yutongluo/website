@@ -1,7 +1,7 @@
 /* globals formatText:false */
 /* exports Filesystem */
 
-(function(exports) {
+(function (exports) {
   'use strict';
 
   function FileSystem(pwdStack, root, user) {
@@ -55,8 +55,7 @@
     if (file.user === this.user.name) {
       // user read
       readIndex = 1;
-    }
-    if (file.group === this.user.group) {
+    } else if (file.group === this.user.group) {
       // group read
       readIndex = 4;
     }
