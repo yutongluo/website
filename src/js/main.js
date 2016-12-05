@@ -57,18 +57,13 @@
 
       // about should always be last
       this.echo('  ' + formatText('bold', 'about') + '\t\t about this site\n\n');
-
-
-      this.echo(
-        formatText('magenta', 'Don\'t like the command line? Go to ') + 'https://gui.yutongluo.com\n');
-
     },
     whoami: function () {
       this.echo(formatText('heading', 'Basic info:'));
       this.echo(formatText('bold', 'Subject Name: ') + 'Yutong Luo');
       this.echo(formatText('bold', 'Subject Role: ') + 'Software Developer');
       this.echo(formatText('bold', 'Subject Age: ') + getAge());
-      this.echo(formatText('bold', 'Subject Education: ') + 'University of Waterloo (Graduate in 2016)');
+      this.echo(formatText('bold', 'Subject Education: ') + 'University of Waterloo (Graduated in 2016)');
       this.echo(formatText('bold', 'Known Locations: ') + 'Seattle, Toronto, Markham');
       this.echo('\n');
       this.echo(formatText('heading', 'Bio:'));
