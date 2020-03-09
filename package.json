@@ -22,7 +22,7 @@
     "gulp-rename": "^1.2.2",
     "gulp-replace": "^0.5.3",
     "gulp-uglify": "^1.5.3",
-    "jquery": "1.12.1",
+    "jquery": "3.4.1",
     "jshint": "^2.8.0",
     "jshint-stylish": "^2.0.1",
     "mocha": "^2.2.4",
@@ -54,6 +54,6 @@
   },
   "version": "0.0.1",
   "dependencies": {
-    "jquery.terminal": "^0.9.3"
+    "jquery.terminal": "^2.14.1"
   }
 }
