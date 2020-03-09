@@ -54,6 +54,6 @@
   },
   "version": "0.0.1",
   "dependencies": {
-    "jquery.terminal": "^0.9.3"
+    "jquery.terminal": "^2.14.1"
   }
 }
