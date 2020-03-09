@@ -224,7 +224,9 @@
     } else {
       var fileList = targetFile.content.slice();
 
-      fileList = lsSort(fileList, flags);
+      if (targetFile.isDirectory) {
+        fileList = lsSort(fileList, flags);
+      }
 
       // DETAIL
       if (flags.indexOf('l') !== -1) {
