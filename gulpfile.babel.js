@@ -7,10 +7,6 @@ import gulp from 'gulp';
 // and attach them to the `plugins` object
 import plugins from 'gulp-load-plugins';
 
-// Temporary solution until gulp 4
-// https://github.com/gulpjs/gulp/issues/355
-import runSequence from 'run-sequence';
-
 import archiver from 'archiver';
 import glob from 'glob';
 import del from 'del';
@@ -24,8 +20,9 @@ const dirs = pkg['h5bp-configs'].directories;
 // | Helper tasks                                                      |
 // ---------------------------------------------------------------------
 
-gulp.task('archive:create_archive_dir', () => {
+gulp.task('archive:create_archive_dir', (done) => {
     fs.mkdirSync(path.resolve(dirs.archive), '0755');
+    done();
 });
 
 gulp.task('archive:zip', (done) => {
@@ -81,16 +78,6 @@ gulp.task('clean', (done) => {
     });
 });
 
-gulp.task('copy', [
-    'copy:index.html',
-    'copy:jquery',
-    'copy:license',
-    'copy:main.css',
-    'copy:misc',
-    'copy:normalize',
-    'compress'
-]);
-
 gulp.task('copy:index.html', () =>
     gulp.src(`${dirs.src}/index.html`)
         .pipe(plugins().replace(/{{JQUERY_VERSION}}/g, pkg.devDependencies.jquery))
@@ -108,17 +95,14 @@ gulp.task('copy:license', () =>
         .pipe(gulp.dest(dirs.dist))
 );
 
-gulp.task('copy:main.css', () => {
+gulp.task('copy:main.css', (done) => {
 
     const banner = `/*! HTML5 Boilerplate v${pkg.version} | ${pkg.license.type} License | ${pkg.homepage} */\n\n`;
 
     gulp.src(`${dirs.src}/css/main.css`)
         .pipe(plugins().header(banner))
-        .pipe(plugins().autoprefixer({
-            browsers: ['last 2 versions', 'ie >= 8', '> 1%'],
-            cascade: false
-        }))
         .pipe(gulp.dest(`${dirs.dist}/css`));
+    done()
 });
 
 gulp.task('copy:misc', () =>
@@ -148,7 +132,6 @@ gulp.task('copy:normalize', () =>
 
 gulp.task('lint:js', () =>
     gulp.src([
-        'gulpfile.js',
         `${dirs.src}/js/*.js`,
         `${dirs.test}/*.js`
     ]).pipe(plugins().jscs())
@@ -157,24 +140,30 @@ gulp.task('lint:js', () =>
       .pipe(plugins().jshint.reporter('fail'))
 );
 
+gulp.task('copy', gulp.series(
+    'copy:index.html',
+    'copy:jquery',
+    'copy:license',
+    'copy:main.css',
+    'copy:misc',
+    'copy:normalize',
+    'compress')
+);
+
 
 // ---------------------------------------------------------------------
 // | Main tasks                                                        |
 // ---------------------------------------------------------------------
 
-gulp.task('archive', (done) => {
-    runSequence(
+gulp.task('build', gulp.series(
+    ['clean', 'lint:js'],
+    'copy')
+);
+
+gulp.task('archive', gulp.series(
         'build',
         'archive:create_archive_dir',
-        'archive:zip',
-    done)
-});
+        'archive:zip')
+);
 
-gulp.task('build', (done) => {
-    runSequence(
-        ['clean', 'lint:js'],
-        'copy',
-    done)
-});
-
-gulp.task('default', ['build']);
+gulp.task('default', gulp.series('build'));

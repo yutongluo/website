@@ -50,13 +50,13 @@
       this.echo(formatText('bold', 'Command Line Resum&eacute; version ' + BashResume.version +
         '-release (i686-pc-linux-gnu)'));
       this.echo('Available commands:');
-      this.echo('  ' + formatText('bold', 'whoami') + '\t\tget to know Yutong');
-      this.echo('  ' + formatText('bold', 'experience') + '\twhat has yutong done?');
-      this.echo('  ' + formatText('bold', 'projects') + '\t  Yutong\'s proudest moments');
-      this.echo('  ' + formatText('bold', 'help  ') + '\t\tthis help screen');
+      this.echo('  ' + formatText('bold', 'whoami') + '        get to know Yutong');
+      this.echo('  ' + formatText('bold', 'experience') + '    what has yutong done?');
+      this.echo('  ' + formatText('bold', 'projects') + '      Yutong\'s proudest moments');
+      this.echo('  ' + formatText('bold', 'help  ') + '        this help screen');
 
       // about should always be last
-      this.echo('  ' + formatText('bold', 'about') + '\t\t about this site\n\n');
+      this.echo('  ' + formatText('bold', 'about') + '         about this site\n\n');
     },
     whoami: function () {
       this.echo(formatText('heading', 'Basic info:'));
