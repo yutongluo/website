@@ -1,0 +1,140 @@
+
+{
+  "basics": {
+    "name": "Yutong Luo",
+    "label": "Senior Software Engineer",
+    "picture": "",
+    "email": "yutong@yutongluo.com",
+    "phone": "(206) 472-9699",
+    "website": "https://www.yutongluo.com",
+    "location": {
+    },
+    "profiles": [
+    ]
+  },
+  "work": [
+    {
+      "name": "Microsoft",
+      "position": "Senior Software Engineer",
+      "location": "Redmond, WA",
+      "startDate": "2020-04-20",
+      "summary": "We're in the big leagues now!",
+      "highlights": [
+        "Full ownership of Reference Data feature for Azure Stream Analytics, including bug fixes, new features, and incident investigations",
+        "Led team of 3 to deliver analytics on capacity management",
+        "Designed and implemented parallel data pipeline using Azure Functions, reduced ingestion time from 5h to 20 minutes",
+        "Planned and executed urgent org-wide security update"
+      ]
+    },
+    {
+      "name": "Groupon",
+      "position": "Software Engineer",
+      "location": "Seattle, WA",
+      "startDate": "2016-07-09",
+      "endDate": "2020-04-10",
+      "summary": "From my manager when I gave my 2 weeks notice: \"You're one of the sharpest person I've ever worked with.\"",
+      "highlights": [
+        "Improved data freshness from 2 days to < 1 hour by building real-time data pipeline with Spark Streaming, HBase, and Kafka to target millions of users in real-time",
+        "Migrated existing backend API from Playframework to Dropwizard providing 5-10 times faster response time, RESTful API, and clean OOP design",
+        "Simplified Spark job submission from synchronous job submission with SQS to asynchronous submission using Apache Livy, significantly reduced codebase complexity and production issues while providing accurate job status",
+        "Migrated batch jobs from MapReduce / Hive to SparkSQL improving the performance by 5 times",
+        "Identified and mitigated Spark Job bottlenecks by utilizing spark caching, further improving performance by 20%",
+        "Encouraged a growth and sharing team culture by hosting monthly tech talk sessions"
+      ]
+    },
+    {
+      "name": "Groupon",
+      "position": "Software Engineer Intern",
+      "location": "Seattle, WA",
+      "startDate": "2015-05-04",
+      "endDate": "2015-08-28",
+      "summary": "The full-times were busy with the existing system, so I got to do all the glorious coding!",
+      "highlights": [
+        "Evaluated Spark and SparkSQL as replacement for existing Hadoop Implementation",
+        "Saw 5-10x performance increase, proposed migration plan and identified key blockers and potential solutions",
+        "Implemented metrics, API, and testing framework for low-latency microservice with Play API and Cassandra."
+      ]
+    },
+    {
+      "name": "Top Hat",
+      "position": "Fullstack Software Engineer Intern",
+      "location": "Toronto, ON",
+      "startDate": "2014-09-04",
+      "endDate": "2014-12-23",
+      "summary": "Fixed and wrote unit tests for ~40 bugs including XSS vulnerabilities, 2D distance calculations, and Excel export errors, totaling a weighted value of $192,840 (over 4 months). Chasing bugs across stacks was actually kind of fun. Led web accessibility project with a team of 2 making web interfaces ADA compliant. Feedback from stakeholder: \"There's a lot of work to be done, but overall good work!\""
+    }
+  ],
+  "education": [
+    {
+      "institution": "University of Waterloo",
+      "studyType": "Bachelors of Computer Science",
+      "startDate": "2011-09-03",
+      "gpa": "3.73",
+      "endDate": "2016-04-20"
+    }
+  ],
+  "skills": [
+    {
+      "name": "Big Data",
+      "keywords": [
+        "SparkSQL",
+        "Spark",
+        "Streaming",
+        "Cassandra",
+        "HBase",
+        "Kafka"
+      ]
+    },
+    {
+      "name": "Database",
+      "keywords": [
+        "MySQL",
+        "Postgres",
+        "Cassandra",
+        "Hbase",
+        "Hibernate"
+      ]
+    },
+    {
+      "name": "Fullstack Web",
+      "keywords": [
+        "Java",
+        "Scala",
+        "Python",
+        "Javascript",
+        "REST",
+        "MVC",
+        "HTML",
+        "CSS"
+      ]
+    },
+    {
+      "name": "Cloud",
+      "keywords": [
+        "Azure",
+        "Azure Functions",
+        "C#",
+        "Kusto"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "yutongluo.com",
+      "awarder": "Personal Website",
+      "startDate": "2016-01-01",
+      "endDate": "2016-05-04",
+      "description": "Terminal based personal website with functioning read-only file system implemented with javascript and jquery-terminal"
+    }
+  ],
+  "languages": [
+    {
+      "language": "English",
+      "fluency": "Native speaker"
+    },
+    {
+      "language": "Mandarin",
+      "fluency": "Fluent"
+    }
+  ]
+}

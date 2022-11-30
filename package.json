@@ -1,62 +1,31 @@
 {
-  "babel": {
-    "presets": [
-      "env"
-    ]
+  "name": " ",
+  "version": "0.0.1",
+  "description": "",
+  "keywords": "",
+  "license": "",
+  "author": "",
+  "scripts": {
+    "build": "parcel build index.html",
+    "dev": "parcel index.html --open",
+    "start": "npm run build && npm run dev",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
-    "@alrra/travis-scripts": "^2.0.0",
-    "apache-server-configs": "2.14.0",
-    "archiver": "^5.3.0",
-    "@babel/cli": "^7.15.7",
-    "@babel/core": "^7.15.8",
-    "babel-preset-env": "^1.7.0",
-    "babel-register": "^6.26.0",
-    "del": "^2.0.2",
-    "glob": "^7.0.3",
-    "gulp": "^4.0.2",
-    "gulp-autoprefixer": "^3.0.2",
-    "gulp-concat": "^2.6.0",
-    "gulp-header": "^1.2.2",
-    "gulp-jscs": "^3.0.1",
-    "gulp-jshint": "^2.0.0",
-    "gulp-load-plugins": "^1.1.0",
-    "gulp-rename": "^1.2.2",
-    "gulp-replace": "^0.5.3",
-    "gulp-uglify": "^1.5.3",
-    "jquery": "3.6.0",
-    "jshint": "^2.8.0",
-    "jshint-stylish": "^2.0.1",
-    "mocha": "^2.2.4",
-    "normalize.css": "3.0.3",
-    "run-sequence": "^1.0.2",
-    "travis-after-all": "^1.4.4"
+    "@tsconfig/strictest": "^1.0.2",
+    "@typescript-eslint/eslint-plugin": "^5.45.0",
+    "buffer": "^5.7.1",
+    "eslint": "^8.28.0",
+    "eslint-config-standard-with-typescript": "^23.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.5.1",
+    "eslint-plugin-promise": "^6.1.1",
+    "jquery": "3.6.1",
+    "parcel": "^2.8.0",
+    "typescript": "^4.9.3"
   },
-  "engines": {
-    "node": ">=0.10.0"
-  },
-  "h5bp-configs": {
-    "directories": {
-      "archive": "archive",
-      "dist": "dist",
-      "src": "src",
-      "test": "test"
-    }
-  },
-  "homepage": "https://html5boilerplate.com/",
-  "license": {
-    "type": "MIT",
-    "url": "https://github.com/h5bp/html5-boilerplate/blob/master/LICENSE.txt"
-  },
-  "name": "terminal.yutongluo.com",
-  "private": true,
-  "scripts": {
-    "build": "gulp build",
-    "test": "gulp archive && mocha --reporter spec --timeout 5000",
-    "archive": "gulp archive"
-  },
-  "version": "0.0.1",
   "dependencies": {
-    "jquery.terminal": "^2.14.1"
+    "jQuery": "npm:jquery@^3.6.1",
+    "jquery.terminal": "^2.34.0"
   }
 }

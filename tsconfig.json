@@ -1,0 +1,9 @@
+{
+    "extends": "@tsconfig/strictest/tsconfig.json",
+    "compilerOptions": {
+      "preserveConstEnums": true,
+      "resolveJsonModule": true,
+    },
+    "include": ["js/**/*.ts"],
+    "exclude": ["node_modules", "**/*.spec.ts"]
+  }

@@ -4,6 +4,7 @@ dist
 scripts
 .DS_Store
 .swp
+.parcel-cache
 
 # User-specific stuff:
 .idea/workspace.xml
