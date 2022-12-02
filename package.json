@@ -6,12 +6,15 @@
   "license": "",
   "author": "",
   "scripts": {
-    "build": "parcel build index.html",
+    "clean:output": "rimraf dist",
+    "build": "npm run clean:output && parcel build index.html",
     "dev": "parcel index.html --open",
-    "start": "npm run build && npm run dev",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "zip": "cd dist && zip -rX website.zip * && mv website.zip .. && cd ..",
+    "publish": "npm run build && npm run zip"
   },
   "devDependencies": {
+    "@parcel/compressor-gzip": "^2.8.0",
     "@tsconfig/strictest": "^1.0.2",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "buffer": "^5.7.1",
