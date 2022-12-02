@@ -1,6 +1,6 @@
 # [yutongluo.com](https://yutongluo.com)
 
-Personal website made with HTML5 Boilerplate and JQuery Terminal.
+Personal website made with JQuery Terminal.
 
 ## Features
 
