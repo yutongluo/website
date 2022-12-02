@@ -1,0 +1,14 @@
+{
+  "compress": {
+    "passes": 3,
+    "pure_getters": true,
+    "unsafe": true
+  },
+  "mangle": {
+    "toplevel": true
+  },
+  "format": {
+    "comments": false,
+    "wrap_iife": true
+  }
+}

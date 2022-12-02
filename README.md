@@ -8,4 +8,8 @@ Personal website made with HTML5 Boilerplate and JQuery Terminal.
 * bio / experience / projects as commands
 * Common *nix commands like ls, cd, cat, pwd are implemented for fun.
 
+## Building
+`npm run dev`
 
+## Packaging
+`npm run build`

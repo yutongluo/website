@@ -22,6 +22,19 @@
 .terminal h1, .terminal h2, .terminal h3, .terminal h4, .terminal h5, .terminal h6, .terminal pre, .cmd {
     margin: 0;
 }
+
+.visually-hidden {
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+    top: 0;
+    left: 0;
+}
+
 .cmd .cmd-clipboard {
     position: absolute !important;
     left: -16px !important;
