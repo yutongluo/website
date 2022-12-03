@@ -1,9 +1,11 @@
 {
-    "extends": "@tsconfig/strictest/tsconfig.json",
-    "compilerOptions": {
-      "preserveConstEnums": true,
-      "resolveJsonModule": true,
-    },
-    "include": ["js/**/*.ts"],
-    "exclude": ["node_modules", "**/*.spec.ts"]
-  }
+  "extends": "@tsconfig/strictest/tsconfig.json",
+  "compilerOptions": {
+    "preserveConstEnums": true,
+    "resolveJsonModule": true,
+    "target": "es6",
+    "lib": ["es6","es2017"],
+  },
+  "include": ["js/**/*.ts"],
+  "exclude": ["node_modules", "**/*.spec.ts"]
+}

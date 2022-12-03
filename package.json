@@ -13,6 +13,7 @@
     "zip": "cd dist && zip -rX website.zip * && mv website.zip .. && cd ..",
     "publish": "npm run build && npm run zip"
   },
+  "browserslist": "> 0.5%, last 2 versions, not dead",
   "devDependencies": {
     "@parcel/compressor-gzip": "^2.8.0",
     "@tsconfig/strictest": "^1.0.2",
