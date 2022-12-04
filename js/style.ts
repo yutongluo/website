@@ -16,21 +16,6 @@ const styles: { [id: string]: string } = {
   skill: '[[bg;#859900;]'
 }
 
-const monthShortNames: { [id: string]: string } = {
-  '01': 'Jan',
-  '02': 'Feb',
-  '03': 'March',
-  '04': 'April',
-  '05': 'May',
-  '06': 'June',
-  '07': 'July',
-  '08': 'Aug',
-  '09': 'Sept',
-  10: 'Oct',
-  11: 'Nov',
-  12: 'Dec'
-}
-
 const bulletPointIndent = 2
 
 export const colWidth = 80
@@ -39,13 +24,15 @@ export function formatText (format: string, text: string): string {
   return `${styles[format]}${text}]`
 };
 
-export function formatDate (date: string): string {
-  if (date === 'present') {
+export function formatDate (date: Date | string): string {
+  if (typeof date === 'string') {
     return date
   }
-  const year = date.substring(0, 4)
-  const month = date.substring(5, 7)
-  return `${monthShortNames[month]} ${year}`
+
+  const formatter = new Intl.DateTimeFormat(
+    'en-US',
+    { year: 'numeric', month: 'short' })
+  return formatter.format(date)
 }
 
 export function formatBullet (text: string): string {

@@ -4,8 +4,8 @@ export class Experience {
   public name: string
   public position: string
   public location: string
-  public startDate: string
-  public endDate: string
+  public startDate: Date
+  public endDate: Date | string
   public summary: string
   public highlights: string[]
 
@@ -13,9 +13,9 @@ export class Experience {
     this.name = name
     this.position = position
     this.location = location
-    this.startDate = startDate
-    this.endDate = endDate
-    if (this.endDate === undefined) {
+    this.startDate = new Date(startDate)
+    this.endDate = new Date(endDate)
+    if (endDate === undefined) {
       this.endDate = 'present'
     }
     this.summary = summary
