@@ -1,4 +1,4 @@
-import { formatText } from './lib/style'
+import { formatText, splitLines } from './lib/style'
 import { ResumeHelper } from './lib/resume-helper'
 import { TerminalFile } from './lib/file'
 import { FileSystem } from './lib/filesystem'
@@ -50,7 +50,7 @@ $(document).ready(function () {
       this.echo('  ' + formatText('bold', 'help') + ': this help screen')
       // about should always be last
       this.echo('  ' + formatText('bold', 'about') + ': about this site\n')
-      this.echo('Common file system commands are also implemented for fun! Run "cat README" for details. ')
+      this.echo(splitLines('Some file system commands are implemented for fun! Run "cat README" for details.\n'))
     },
     about: function () {
       this.echo('This website is made with terminal-resume.\n')
