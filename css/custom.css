@@ -1,0 +1,6 @@
+/* See https://github.com/jcubic/jquery.terminal/wiki/CSS-Style */
+.terminal {
+  --background: #002b36;
+  --error-color: #dc322f;
+  --color: #eee8d5;
+}

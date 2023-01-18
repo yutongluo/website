@@ -6,6 +6,13 @@ scripts
 .swp
 .parcel-cache
 website.zip
+coverage
+reports
+
+.vscode/*
+!.vscode/settings.json
+
+parcel-bundle-reports
 
 # User-specific stuff:
 .idea/workspace.xml

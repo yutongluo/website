@@ -1,8 +1,7 @@
 {
   "compress": {
     "passes": 3,
-    "pure_getters": true,
-    "unsafe": true
+    "pure_getters": true
   },
   "mangle": {
     "toplevel": true

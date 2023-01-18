@@ -10,7 +10,8 @@
     "location": {
     },
     "profiles": [
-    ]
+    ],
+    "summary": "Little is known about our bespectacled subject, besides his ability to code. Through rigorous training in the famed co-op program at University of Waterloo, he has interned at companies big and small. Through this process, he transformed from a novice who gets code to work to a man with an obsession for writing the perfect code. Now on a quest for an unobtainable goal, he is determined to be the best."
   },
   "work": [
     {
@@ -120,11 +121,43 @@
   ],
   "projects": [
     {
-      "name": "yutongluo.com",
-      "awarder": "Personal Website",
+      "name": "terminal-resume",
+      "url": "https://github.com/yutongluo/terminal-resume",
+      "type": "Open Source",
+      "startDate": "2022-12-01",
+      "endDate": "2022-12-30",
+      "description": "Turn your json-resume into a terminal website, used to power the current yutongluo.com"
+    },
+    {
+      "name": "yutongluo.com (original)",
+      "url": "https://yutongluo.com",
+      "type": "Personal Website",
       "startDate": "2016-01-01",
       "endDate": "2016-05-04",
-      "description": "Terminal based personal website with functioning read-only file system implemented with javascript and jquery-terminal"
+      "description": "Terminal based personal website with functioning read-only file system implemented with typescript and jquery-terminal"
+    },
+    {
+      "name": "StockSlate",
+      "type": "WebApp",
+      "entity": "Hack the North Bloomberg API Prize",
+      "description": "A web app which ranks stocks based on investor profiles",
+      "highlights": [
+        "Implemented back-end to pull data from Bloomberg API into MongoDB in realtime with Node.js"
+      ]
+    },
+    {
+      "name": "IBM Carpool",
+      "type": "WebApp",
+      "entity": "IBM FutureBlue Hackathon",
+      "description": "A web app which hosts car pooling for IBM employees",
+      "highlights": [
+        "Designed and implemented user interactions and dynamic HTML generation with JavaScript and jQuery"
+      ]
+    },
+    {
+      "name": "Timecatcher",
+      "type": "Mobile",
+      "description": "A smart calendar Android app which schedules a user's day using AI algorithms"
     }
   ],
   "languages": [
