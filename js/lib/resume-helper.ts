@@ -11,6 +11,7 @@ import { Award } from '../sections/award'
 import type { ISection } from '../sections/section.interface'
 import { Publication } from '../sections/publications'
 import { Project } from '../sections/projects'
+import type { IArraySection } from '../sections/array-section.interface'
 
 export class ResumeHelper {
   private readonly JsonResumeClassMapping: { [name: string]: new (s: any) => ISection } = {
@@ -38,8 +39,8 @@ export class ResumeHelper {
       if (Array.isArray(jsonSection) && jsonSection.length > 0) {
         str += formatText('heading', sectionName.toUpperCase()) + '\n'
         jsonSection.forEach((sectionContent: any) => {
-          const section = new SectionClass(sectionContent)
-          str += section.toString()
+          const section = new SectionClass(sectionContent) as IArraySection
+          str += section.toString() + (section.addLineBreaks ? '\n' : '')
         })
       } else {
         str += formatText('heading', sectionName.toUpperCase()) + '\n'
@@ -47,6 +48,6 @@ export class ResumeHelper {
         str += section.toString()
       }
     }
-    return str
+    return str.trimEnd() + '\n' // ensure only one linebreak
   }
 }

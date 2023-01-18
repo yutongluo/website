@@ -1,6 +1,6 @@
 import { Format } from '../config'
 import { formatDate, formatText, splitLines } from '../lib/style'
-import type { ISection } from './section.interface'
+import type { IArraySection } from './array-section.interface'
 
 interface JsonPublication {
   name: string
@@ -10,7 +10,8 @@ interface JsonPublication {
   summary: string | undefined
 }
 
-export class Publication implements ISection {
+export class Publication implements IArraySection {
+  addLineBreaks = true
   private readonly publication: JsonPublication
 
   constructor (publication: JsonPublication) {

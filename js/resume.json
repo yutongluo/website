@@ -119,6 +119,18 @@
       ]
     }
   ],
+  "awards": [
+    {
+      "title": "Hack the North Bloomberg API Prize",
+      "awarder": "Hack the North",
+      "summary": "StockSlate - A web app which ranks stocks based on investor profiles"
+    },
+    {
+      "awarder": "IBM FutureBlue Hackathon",
+      "title": "IBM FutureBlue Hackathon First Prize",
+      "summary": "A web app which hosts car pooling for IBM employees"
+    }
+  ],
   "projects": [
     {
       "name": "terminal-resume",
@@ -135,24 +147,6 @@
       "startDate": "2016-01-01",
       "endDate": "2016-05-04",
       "description": "Terminal based personal website with functioning read-only file system implemented with typescript and jquery-terminal"
-    },
-    {
-      "name": "StockSlate",
-      "type": "WebApp",
-      "entity": "Hack the North Bloomberg API Prize",
-      "description": "A web app which ranks stocks based on investor profiles",
-      "highlights": [
-        "Implemented back-end to pull data from Bloomberg API into MongoDB in realtime with Node.js"
-      ]
-    },
-    {
-      "name": "IBM Carpool",
-      "type": "WebApp",
-      "entity": "IBM FutureBlue Hackathon",
-      "description": "A web app which hosts car pooling for IBM employees",
-      "highlights": [
-        "Designed and implemented user interactions and dynamic HTML generation with JavaScript and jQuery"
-      ]
     },
     {
       "name": "Timecatcher",

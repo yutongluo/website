@@ -64,7 +64,7 @@ $(document).ready(function () {
       let str = ''
       command.sections.forEach(section => {
         const content = resumeHelper.getSection(section)
-        if (content !== '') {
+        if (content.trimEnd() !== '') {
           str += Format.SectionStart
           str += content
           str += Format.SectionEnd

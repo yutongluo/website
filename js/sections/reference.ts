@@ -1,12 +1,13 @@
 import { formatText, splitLines } from '../lib/style'
-import type { ISection } from './section.interface'
+import type { IArraySection } from './array-section.interface'
 
 interface JsonReference {
   name: string
   reference: string
 }
 
-export class Reference implements ISection {
+export class Reference implements IArraySection {
+  addLineBreaks = true
   private readonly reference: JsonReference
 
   constructor (reference: JsonReference) {

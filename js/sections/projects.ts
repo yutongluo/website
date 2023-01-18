@@ -1,8 +1,8 @@
 import * as style from '../lib/style'
 import { Format } from '../config'
 import { hasContent } from '../lib/utils'
-import type { ISection } from './section.interface'
 import { formatBullet } from '../lib/style'
+import type { IArraySection } from './array-section.interface'
 
 interface JsonProject {
   name: string
@@ -17,7 +17,8 @@ interface JsonProject {
   keywords: string[] | undefined
 }
 
-export class Project implements ISection {
+export class Project implements IArraySection {
+  addLineBreaks = true
   private readonly project: JsonProject
 
   constructor (project: JsonProject) {
@@ -52,7 +53,7 @@ export class Project implements ISection {
       if (this.project.roles !== undefined && this.project.roles.length > 0) {
         str += ' '.repeat(Format.CharsPerLine - this.project.roles.join(', ').length - this.project.type.length)
       }
-      str += style.formatText('magenta', this.project.type) + '\n'
+      str += style.formatText('bold', this.project.type) + '\n'
     }
 
     if (hasContent(this.project.url)) {
@@ -74,6 +75,6 @@ export class Project implements ISection {
         str += formatBullet(keyword) + '\n'
       })
     }
-    return str + '\n'
+    return str
   }
 }

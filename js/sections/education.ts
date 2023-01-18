@@ -1,7 +1,7 @@
 import { Format } from '../config'
 import { formatBullet, formatDate, formatText } from '../lib/style'
 import { hasContent } from '../lib/utils'
-import type { ISection } from './section.interface'
+import type { IArraySection } from './array-section.interface'
 
 interface JsonEducation {
   institution: string
@@ -14,7 +14,8 @@ interface JsonEducation {
   courses: string[] | undefined
 }
 
-export class Education implements ISection {
+export class Education implements IArraySection {
+  addLineBreaks = true
   private readonly education: JsonEducation
 
   constructor (education: JsonEducation) {

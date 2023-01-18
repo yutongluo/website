@@ -1,12 +1,13 @@
 import { formatBullet, formatText } from '../lib/style'
-import type { ISection } from './section.interface'
+import type { IArraySection } from './array-section.interface'
 
 interface JsonInterest {
   name: string
   keywords: string[] | undefined
 }
 
-export class Interest implements ISection {
+export class Interest implements IArraySection {
+  addLineBreaks = false
   private readonly interest: JsonInterest
 
   constructor (interest: JsonInterest) {

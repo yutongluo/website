@@ -8,6 +8,7 @@ interface JsonSkill {
 }
 
 export class Skill implements ISection {
+  addLineBreaks = false
   private readonly skill: JsonSkill
 
   constructor (skill: JsonSkill) {
